@@ -1,0 +1,25 @@
+# CopyRight FlareHorz Engine Development Team. All Rights Reserved.
+
+# IDE files
+.vs/
+.vscode/
+.idea/
+
+# Solution files
+FlareHorz.sln
+FlareHorz.sln.DotSettings.user
+
+FlareBuildTool/FlareBuildTool.csproj
+FlareCore/FlareCore.csproj
+
+# Binaries and intermediate
+Binaries/
+Binaries/Intermediate/
+
+FlareBuildTool/Binaries/
+FlareBuildTool/obj/
+FlareCore/Binaries/
+FlareCore/obj/
+
+# Logs
+FlareBuildTool/Logs/
