@@ -33,7 +33,7 @@ static class FProgram
 		
 		// Get and check solution path
 		FGlobal.SolutionName = FGlobal.SolutionPath.Split(@"\"[0]).Last();
-		FAssert.Checkf(FGlobal.SolutionName == "FlareHorz", "Failed to get solution path");
+		FAssert.Checkf(FGlobal.SolutionName == "FlareHorz", "Failed to get solution path!");
 		
 		// Run build tool
 		Int32 ExitResult = BuildTool.GuardedMain(Args.Length, Args);
