@@ -29,13 +29,13 @@ public enum ELogVerbosity
 	Info = 3,
 	
 	/// <summary>
-	/// Prints a verbose message to a log file (usually used for detailed logging).
+	/// Prints a debug message to console (and log file).
 	/// Works only in Debug configuration.
 	/// </summary>
 	Debug = 4,
 	
 	/// <summary>
-	/// Enable all logging verbosity.
+	/// Enable all logging verbosities.
 	/// </summary>
 	All = 5
 }

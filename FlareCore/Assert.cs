@@ -40,8 +40,7 @@ public class FAssert : FFlareObject
 			FLog.Error("Assertion failed!");
 			LogAssertInfo(StackInstance, Message);
 			
-			// TODO: ...
-			// throw new InvalidOperationException();
+			// TODO: Maybe should be: throw new InvalidOperationException();
 			Environment.Exit(1);
 		}
 	}

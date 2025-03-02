@@ -65,8 +65,8 @@ public abstract class FLog : FFlareObject
 			LogFile.LoadFile(Path.Combine(WorkingDirectory, LogFileName));
 			
 			// Seperate logs
-			LogFile.WriteSrc("---------------------------------------------------------------------------------" +
-			                 "-----------------------------------------------------------"); // 180 chars as in our code style
+			LogFile.WriteSrc("---------------------------------------------------------------------------------------------------------------------------------------------------" +
+			                 "---------------------------------"); // 180 chars as in our code style
 		}
 		else
 		{
@@ -142,6 +142,8 @@ public abstract class FLog : FFlareObject
 		// Wrap everything
 		string TimeFormatted = CurrentTime.ToString("HH:mm:ss");
 		string FormattedLogText = "> " + TimeFormatted + "> " + GetAPINameFromStackTrace() + "> " + LogVerbosityWrapped + "> " + Text;
+
+		// Log
 		Console.WriteLine(FormattedLogText);
 		LogFile.WriteSrc(FormattedLogText);
 		SavedLogFile.WriteSrc(FormattedLogText);

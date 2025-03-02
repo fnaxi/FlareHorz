@@ -1,7 +1,5 @@
 ﻿// CopyRight FlareHorz Engine Development Team. All Rights Reserved.
 
-using System.Diagnostics;
-using FlareBuildTool.BuildTool;
 using FlareCore;
 using FlareCore.Logger;
 

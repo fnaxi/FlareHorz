@@ -149,6 +149,13 @@ public class FFile : FFlareObject
 		FileSource.Write(Text);
 	}
 
+	/// <summary>
+	/// Find all directories in path.
+	/// </summary>
+	public static string[] GetDirectories(string InPath)
+	{
+		return Directory.GetDirectories(InPath);
+	}
 	
 	/// <summary>
 	/// Check is file exists.
