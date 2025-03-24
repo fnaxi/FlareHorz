@@ -1,4 +1,4 @@
-﻿// CopyRight FlareHorz Engine Development Team. All Rights Reserved.
+﻿// CopyRight FlareHorz Team. All Rights Reserved.
 
 namespace FlareBuildTool.Solution;
 

@@ -3,8 +3,7 @@
 namespace FlareCore;
 
 /// <summary>
-/// Attribute for indicating current API. Like in API macro in C++ codespace.
-/// It only needed for easier code reading and making code style to know what API you're coding.
+/// Attribute for indicating current API in logger. Like API macro in C++ codespace.
 /// </summary>
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct | AttributeTargets.Enum | AttributeTargets.Interface)]
 public class API : Attribute
