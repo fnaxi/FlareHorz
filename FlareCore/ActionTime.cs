@@ -9,10 +9,12 @@ namespace FlareCore;
 public class FActionTime : FFlareObject
 {
 	/// <summary>
-	/// Sets default values.
+	/// Calls when object of that class is created.
 	/// </summary>
-	public FActionTime()
-	{
+	protected override void OnObjectCreated()
+	{ 
+		base.OnObjectCreated();
+		
 		TimeStart = new DateTime();
 		TimeEnd = new DateTime();
 

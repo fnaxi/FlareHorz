@@ -1,5 +1,6 @@
 ﻿// CopyRight FlareHorz Engine Development Team. All Rights Reserved.
 
+using System.IO;
 using System.Diagnostics;
 using System.Reflection;
 
@@ -11,13 +12,6 @@ namespace FlareCore.Logger;
 [FlareCoreAPI]
 public abstract class FLog : FFlareObject
 {
-	/// <summary>
-	/// Sets default values.
-	/// </summary>
-	private FLog()
-	{
-	}
-
 	/// <summary>
 	/// Log file of this logger.
 	/// </summary>
@@ -46,27 +40,28 @@ public abstract class FLog : FFlareObject
 #else
 		#error Unknown configuration
 #endif
-		
+
 		// There can be no Logs/ folder
 		string WorkingDirectory = Path.Combine(Path.Combine(SolutionPath, ProjectName), "Logs");
-		if (!FFile.IsDirectoryExists(WorkingDirectory))
+		if (!Directory.Exists(WorkingDirectory))
 		{
-			FFile.CreateDirectory(WorkingDirectory);
+			Directory.CreateDirectory(WorkingDirectory);
 		}
 		
 		// Create log file
-		LogFile = new FFile();
+		LogFile = CreateObject<FFile>("LogFile");
 		
 		string LogFileName = "Log.fhlog";
 		string LogFilePath = Path.Combine(WorkingDirectory, LogFileName);
 		
-		if (FFile.IsFileExists(LogFilePath))
+		if (File.Exists(LogFilePath))
 		{
 			LogFile.LoadFile(Path.Combine(WorkingDirectory, LogFileName));
 			
 			// Seperate logs
-			LogFile.WriteSrc("---------------------------------------------------------------------------------------------------------------------------------------------------" +
-			                 "---------------------------------"); // 180 chars as in our code style
+			LogFile.WriteSrc("---------------------------------------------------------------------------------------" +
+			                 "---------------------------------------------------------------------------------------" +
+			                 "------");
 		}
 		else
 		{
@@ -74,7 +69,7 @@ public abstract class FLog : FFlareObject
 		}
 
 		// Create saved log file
-		SavedLogFile = new FFile();
+		SavedLogFile = CreateObject<FFile>("SavedLogFile");
 		
 		DateTime CurrentTime = DateTime.Now;
 		string TimeFormatted = CurrentTime.ToString("yyyy-MM-dd_HH-mm-ss");
@@ -109,7 +104,7 @@ public abstract class FLog : FFlareObject
 	/// <param name="Text">Text to log.</param>
 	private static void Log(ELogVerbosity LogVerbosity, string Text)
 	{
-		if (!bInitialized) return;
+		if (!bInitialized || LogVerbosity == ELogVerbosity.All || LogVerbosity == ELogVerbosity.NoLogging) return;
 		
 		// Change console color and make log verbosity wrapped to 5 symbols
 		string LogVerbosityWrapped = "NULL ";
@@ -141,7 +136,7 @@ public abstract class FLog : FFlareObject
 		
 		// Wrap everything
 		string TimeFormatted = CurrentTime.ToString("HH:mm:ss");
-		string FormattedLogText = "> " + TimeFormatted + "> " + GetAPINameFromStackTrace() + "> " + LogVerbosityWrapped + "> " + Text;
+		string FormattedLogText = "> " + TimeFormatted + "> " + FReflection.GetAPINameFromStackTrace() + "> " + LogVerbosityWrapped + "> " + Text;
 
 		// Log
 		Console.WriteLine(FormattedLogText);
@@ -153,45 +148,11 @@ public abstract class FLog : FFlareObject
 	}
 	
 	/// <summary>
-	/// Get the API name from the stack trace by inspecting the calling class.
-	/// </summary>
-	/// <returns>The API name.</returns>
-	private static string GetAPINameFromStackTrace()
-	{
-		// TODO: Null checks
-		
-		StackTrace StackTrace = new StackTrace();
-		StackFrame? StackFrame = StackTrace.GetFrame(2); // The method that called Log()
-
-		MethodBase? Method = StackFrame.GetMethod();
-		Type? DeclaringType = Method.DeclaringType;
-		
-		// Try to get the API from the calling class
-		API? APITypeAttribute = (API)Attribute.GetCustomAttribute(DeclaringType, typeof(API));
-		if (APITypeAttribute != null)
-		{
-			return APITypeAttribute.GetName();
-		}
-		
-		// No attribute is found
-		return "UnknownAPI";
-	}
-	
-	/// <summary>
 	/// Wrappers for different log verbosities.
 	/// </summary>
-	public static void Error(string Text)
-	{
-		Log(ELogVerbosity.Error, Text);
-	}
-	public static void Warn(string Text)
-	{
-		Log(ELogVerbosity.Warning, Text);
-	}
-	public static void Info(string Text)
-	{
-		Log(ELogVerbosity.Info, Text);
-	}
+	public static void Error(string Text) { Log(ELogVerbosity.Error, Text); }
+	public static void Warn(string Text) { Log(ELogVerbosity.Warning, Text); }
+	public static void Info(string Text) { Log(ELogVerbosity.Info, Text); }
 	public static void Debug(string Text)
 	{
 #if DEBUG

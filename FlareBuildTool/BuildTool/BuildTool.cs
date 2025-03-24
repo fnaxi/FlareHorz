@@ -19,11 +19,15 @@ namespace FlareBuildTool;
 public class FBuildTool : FFlareObject
 {
 	/// <summary>
-	/// Sets default values.
+	/// Calls when object of that class is created.
 	/// </summary>
-	public FBuildTool()
-	{
+	protected override void OnObjectCreated()
+	{ 
+		base.OnObjectCreated();
+		
 		SolutionTargets = new List<FTarget>();
+		Solution = CreateObject<FSolution>("Solution");
+		MinimalSolution = CreateObject<FSolution>("MinimalSolution");
 	}
 	
 	/// <summary>
@@ -56,8 +60,6 @@ public class FBuildTool : FFlareObject
 			return 1;
 		}
 		
-		
-		
 		return 0;
 	}
 	
@@ -69,7 +71,7 @@ public class FBuildTool : FFlareObject
 	private string[] SearchForTargets()
 	{
 		// Search for all folders that can be targets
-		string[] TargetPaths = FFile.GetDirectories(FGlobal.SolutionPath)
+		string[] TargetPaths = Directory.GetDirectories(FGlobal.SolutionPath)
 			.Where(s => !(s.EndsWith(".git")))
 			.Where(s => !(s.EndsWith(".github")))
 			.Where(s => !(s.EndsWith(".idea")))
@@ -87,7 +89,7 @@ public class FBuildTool : FFlareObject
 		foreach (string TargetPath in TargetPaths)
 		{
 			string TargetName = TargetPath.Split('\\').Last();
-			if (FFile.IsFileExists(FFile.Combine(TargetPath, TargetName + ".Target.cs")))
+			if (File.Exists(Path.Combine(TargetPath, TargetName + ".Target.cs")))
 			{
 				CheckedTargetPaths.Add(TargetPath);
 			}

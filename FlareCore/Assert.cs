@@ -13,48 +13,39 @@ namespace FlareCore;
 public class FAssert : FFlareObject
 {
 	/// <summary>
-	/// Sets default values.
-	/// </summary>
-	private FAssert()
-	{
-	}
-
-	/// <summary>
 	/// Assert implementation.
 	/// </summary>
 	private static void Assert(bool bCondition, string Message = "", bool bVerify = false)
 	{
 		if (bCondition) return;
 		
-		// Get stack info
-		StackFrame StackInstance = new StackFrame(2, true); // 2 frames - Assert() and Verify()/Check()/etc.
-		
 		// Log everything
-		if (bVerify)
+		switch (bVerify)
 		{
-			FLog.Error("Verify ssertion failed!");
-			LogAssertInfo(StackInstance, Message);
-		}
-		else
-		{
-			FLog.Error("Assertion failed!");
-			LogAssertInfo(StackInstance, Message);
-			
-			// TODO: Maybe should be: throw new InvalidOperationException();
-			Environment.Exit(1);
+			case true:
+				FLog.Error("Verify assertion failed!");
+				LogAssertInfo(Message);
+				break;
+			case false:
+				FLog.Error("Assertion failed!");
+				LogAssertInfo(Message);
+				Environment.Exit(1);
+				break;
 		}
 	}
 
 	/// <summary>
 	/// Log info about current assert.
 	/// </summary>
-	/// <param name="InStackInstance"></param>
-	private static void LogAssertInfo(StackFrame InStackInstance, string InMessage)
+	private static void LogAssertInfo(string InMessage)
 	{
+		// Get stack info
+		StackFrame StackInstance = new StackFrame(3, true); // Skip LogAssertInfo(), Assert() and Verify()/Check()/etc.
+		
 		// Get info
-		MethodBase? EpxrMethod = InStackInstance.GetMethod();
-		string? ExprFileName = InStackInstance.GetFileName();
-		int EpxrLineNumber = InStackInstance.GetFileLineNumber();
+		MethodBase? EpxrMethod = StackInstance.GetMethod();
+		string? ExprFileName = StackInstance.GetFileName();
+		int EpxrLineNumber = StackInstance.GetFileLineNumber();
 		
 		// Log everything
 		FLog.Error(EpxrMethod + ":" + " in " + ExprFileName + " on " + EpxrLineNumber + " line");
@@ -71,14 +62,15 @@ public class FAssert : FFlareObject
 	/// Checks condition, if it's false - crash application and log details.
 	/// Works in both Debug and Development.
 	/// </summary>
-	public static void Check(bool bCondition)
-	{
-		Assert(bCondition);
-	}
-	public static void Checkf(bool bCondition, string Message)
-	{
-		Assert(bCondition, Message);
-	}
+	public static void Check(bool bCondition) { Assert(bCondition); }
+	public static void Checkf(bool bCondition, string Message) { Assert(bCondition, Message); }
+	
+	/// <summary>
+	/// Checks condition, if it's false - log error, does not crash application.
+	/// Works in both Debug and Development.
+	/// </summary>
+	public static void Verify(bool bCondition) { Assert(bCondition, "", true); }
+	public static void Verifyf(bool bCondition, string Message) { Assert(bCondition, Message, true); }
 	
 	/// <summary>
 	/// Same as Check() but works only Debug, intended for something that is slow.
@@ -97,25 +89,9 @@ public class FAssert : FFlareObject
 	}
 	
 	/// <summary>
-	/// Checks condition, if it's false - log warning, does not crash application.
-	/// Works in both Debug and Development.
+	/// Should be used for pieces of code which should never be executed.
 	/// </summary>
-	public static void Verify(bool bCondition)
-	{
-		Assert(bCondition, "", true);
-	}
-	public static void Verifyf(bool bCondition, string Message)
-	{
-		Assert(bCondition, Message, true);
-	}
-	
-	/// <summary>
-	/// Should be used for pieces of code which should be never run.
-	/// </summary>
-	public static void CheckNoEntry()
-	{
-		Check(false);
-	}
+	public static void CheckNoEntry() { Check(false); }
 }
 
 /// <summary>

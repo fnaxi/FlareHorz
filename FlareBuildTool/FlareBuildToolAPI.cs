@@ -10,13 +10,7 @@ namespace FlareBuildTool;
 public class FlareBuildToolAPI : API
 {
 	/// <summary>
-	/// Sets default values.
-	/// </summary>
-	public FlareBuildToolAPI()
-	{ }
-	
-	/// <summary>
-	/// Get API string. Should be overrided.
+	/// Get API string.
 	/// </summary>
 	public override string GetName()
 	{

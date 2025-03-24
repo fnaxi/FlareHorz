@@ -1,21 +1,24 @@
 ﻿// CopyRight FlareHorz Engine Development Team. All Rights Reserved.
 
-namespace FlareBuildTool.Target;
+using FlareCore;
+
+namespace FlareBuildTool.Solution;
 
 /// <summary>
 /// Target rules that are specific to selected configuration.
 /// </summary>
 [FlareBuildToolAPI]
-public class FConfigurationTargetRules
+public class FConfigurationTargetRules : FFlareObject
 {
 	/// <summary>
-	/// Sets default values.
+	/// Calls when object of that class is created.
 	/// </summary>
-	public FConfigurationTargetRules()
+	protected override void OnObjectCreated()
 	{
+		base.OnObjectCreated();
+		
 		Defines = new List<string>();
 	}
-	
 	
 	/// <summary>
 	/// Defines this configuration have.

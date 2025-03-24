@@ -1,6 +1,6 @@
 ﻿// CopyRight FlareHorz Engine Development Team. All Rights Reserved.
 
-namespace FlareBuildTool.Target;
+namespace FlareBuildTool.Solution;
 
 /// <summary>
 /// Configuration. Should always be same as real configuration name.

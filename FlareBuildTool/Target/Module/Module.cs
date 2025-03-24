@@ -1,5 +1,7 @@
 ﻿// CopyRight FlareHorz Engine Development Team. All Rights Reserved.
 
+using FlareCore;
+
 namespace FlareBuildTool.Target.Module;
 
 /// <summary>
@@ -7,15 +9,8 @@ namespace FlareBuildTool.Target.Module;
 /// We find all directories in Source/ folder and create {ModuleName}_API macro for each.
 /// </summary>
 [FlareBuildToolAPI]
-public class FModule
+public class FModule : FFlareObject
 {
-	/// <summary>
-	/// Sets default values.
-	/// </summary>
-	public FModule()
-	{
-	}
-	
 	/// <summary>
 	/// Name of this module.
 	/// </summary>

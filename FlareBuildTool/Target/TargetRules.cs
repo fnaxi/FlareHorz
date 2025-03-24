@@ -1,18 +1,23 @@
 ﻿// CopyRight FlareHorz Engine Development Team. All Rights Reserved.
 
+using FlareCore;
+using FlareBuildTool.Solution;
+
 namespace FlareBuildTool.Target;
 
 /// <summary>
 /// Rules describing target for .Target.cs file.
 /// </summary>
 [FlareBuildToolAPI]
-public class FTargetRules
+public class FTargetRules : FFlareObject
 {
 	/// <summary>
-	/// Sets default values.
+	/// Calls when object of that class is created.
 	/// </summary>
-	public FTargetRules()
+	protected override void OnObjectCreated() 
 	{
+		base.OnObjectCreated();
+		
 		TargetType = ETargetType.Executable;
 		TargetLanguage = ETargetLanguage.CPP;
 		CppDialect = 17;

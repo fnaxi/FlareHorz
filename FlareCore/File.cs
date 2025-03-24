@@ -9,21 +9,14 @@ namespace FlareCore;
 public class FFile : FFlareObject
 {
 	/// <summary>
-	/// Sets default values.
-	/// </summary>
-	public FFile()
-	{
-	}
-	
-	/// <summary>
 	/// Name of this file.
 	/// </summary>
-	public string FileName;
+	public string FileName { get; private set; }
 
 	/// <summary>
 	/// Path to this file.
 	/// </summary>
-	public string FilePath;
+	public string FilePath { get; private set; }
 	
 	/// <summary>
 	/// Source of this premake file.
@@ -31,7 +24,7 @@ public class FFile : FFlareObject
 	private StreamWriter FileSource;
 	
 	/// <summary>
-	/// Is this file deleted. True when you didn't created or loaded a file.
+	/// Is this file deleted. True when you didn't create or loaded a file.
 	/// </summary>
 	private bool bDeletedOrUnloaded = true;
 	
@@ -112,15 +105,14 @@ public class FFile : FFlareObject
 		// Load file
 		FAssert.Checkf(File.Exists(InFilePath), "File doesn't exist!");
 		
-		FileSource = new StreamWriter(InFilePath, append: true); // Does not delete old text in the file, you can manually clear it if you need that
+		FileSource = new StreamWriter(InFilePath, append: true); // Use ClearFile
 		bDeletedOrUnloaded = false;
 	}
 	
 	/// <summary>
 	/// Clear whole text that file have.
-	/// <remarks>IMPORTANT: Be sure to update file path if you changed it</remarks>
 	/// </summary>
-	public void ClearFile(string Text)
+	public void ClearFile()
 	{
 		FAssert.Checkf(!bDeletedOrUnloaded, "File is not loaded or deleted!");
 		
@@ -136,71 +128,25 @@ public class FFile : FFlareObject
 	}
 	
 	/// <summary>
-	/// Write something to source of that file.
-	/// </summary>
-	public void WriteSrc(string Text)
-	{
-		FAssert.Checkf(!bDeletedOrUnloaded, "File is not loaded or deleted!");
-		FileSource.WriteLine(Text);
-	}
-	public void WriteSrcInline(string Text)
-	{
-		FAssert.Checkf(!bDeletedOrUnloaded, "File is not loaded or deleted!");
-		FileSource.Write(Text);
-	}
-
-	/// <summary>
-	/// Find all directories in path.
-	/// </summary>
-	public static string[] GetDirectories(string InPath)
-	{
-		return Directory.GetDirectories(InPath);
-	}
-	
-	/// <summary>
 	/// Check is file exists.
 	/// </summary>
-	public static bool IsFileExists(string InFilePath)
+	public bool IsFileExists()
 	{
-		return File.Exists(InFilePath);
+		return File.Exists(FilePath);
 	}
 	
 	/// <summary>
-	/// Check is directory exists.
+	/// Write something to source of that file.
 	/// </summary>
-	public static bool IsDirectoryExists(string InDirectoryPath)
+	public void WriteSrc(string Text, bool bInline = false)
 	{
-		return Directory.Exists(InDirectoryPath);
-	}
-
-	/// <summary>
-	/// Create directory.
-	/// </summary>
-	public static void CreateDirectory(string InDirectoryPath)
-	{
-		if (!FFile.IsDirectoryExists(InDirectoryPath))
+		FAssert.Checkf(!bDeletedOrUnloaded, "File is unloaded or deleted!");
+		switch (bInline)
 		{
-			Directory.CreateDirectory(InDirectoryPath);
+			case true: 
+				FileSource.Write(Text); break;
+			case false:
+				FileSource.WriteLine(Text); break;
 		}
-	}
-	
-	/// <summary>
-	/// Get current directory.
-	/// </summary>
-	public static string GetCurrentDirectory()
-	{
-		return Directory.GetCurrentDirectory();
-	}
-	
-	/// <summary>
-	/// Combine two different paths.
-	/// </summary>
-	public static string Combine(string InPath1, string InPath2)
-	{
-		return Path.Combine(InPath1, InPath2);
-	}
-	public static string Combine(string[] InPaths)
-	{
-		return Path.Combine(InPaths);
 	}
 }

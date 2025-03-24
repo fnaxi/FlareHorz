@@ -9,14 +9,16 @@ namespace FlareBuildTool.Target;
 /// A class that describes one project in the solution.
 /// </summary>
 [FlareBuildToolAPI]
-public class FTarget
+public class FTarget : FFlareObject
 {
 	/// <summary>
-	/// Sets default values.
+	/// Calls when object of that class is created.
 	/// </summary>
-	public FTarget()
+	protected override void OnObjectCreated()
 	{
-		TargetCsFile = new FFile();
+		base.OnObjectCreated();
+		
+		TargetCsFile = CreateObject<FFile>("TargetCsFile");
 		Modules = new List<FModule>();
 	}
 	

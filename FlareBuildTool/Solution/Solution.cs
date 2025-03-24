@@ -2,6 +2,7 @@
 
 using FlareBuildTool.Target;
 using FlareCore;
+using FlareCore.Logger;
 
 namespace FlareBuildTool.Solution;
 
@@ -10,14 +11,16 @@ namespace FlareBuildTool.Solution;
 /// Contains info about all targets.
 /// </summary>
 [FlareBuildToolAPI]
-public class FSolution
+public class FSolution : FFlareObject
 {
 	/// <summary>
-	/// Sets default values.
+	/// Calls when object of that class is created.
 	/// </summary>
-	public FSolution()
+	protected override void OnObjectCreated()
 	{
-		LuaFile = new FFile();
+		base.OnObjectCreated();
+		
+		LuaFile = CreateObject<FFile>("LuaFile");
 	}
 	
 	/// <summary>

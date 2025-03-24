@@ -9,16 +9,18 @@ namespace FlareBuildTool.Solution;
 /// <remarks>Actually FlareHorz.sln.MinimalSolution.lua exists in repository.</remarks>
 /// </summary>
 [FlareBuildToolAPI]
-public class FMinimalSolution
+public class FMinimalSolution : FFlareObject
 {
 	/// <summary>
-	/// Sets default values.
+	/// Calls when object of that class is created.
 	/// </summary>
-	public FMinimalSolution()
+	protected override void OnObjectCreated()
 	{
-		LuaFile = new FFile();
+		base.OnObjectCreated();
+		
+		LuaFile = CreateObject<FFile>("LuaFile");
 	}
-
+	
 	/// <summary>
 	/// Lua file of minimal solution.
 	/// </summary>
