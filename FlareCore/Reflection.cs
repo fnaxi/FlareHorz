@@ -2,6 +2,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Reflection;
 
 namespace FlareCore;
@@ -25,12 +26,16 @@ public class FReflection : FFlareObject
 		Type? DeclaringType = Method.DeclaringType;
 		
 		// Try to get the API from the calling class
-		API? APITypeAttribute = (API)Attribute.GetCustomAttribute(DeclaringType, typeof(API));
-		if (APITypeAttribute != null)
+		API[]? APITypeAttributes = (API[])Attribute.GetCustomAttributes(DeclaringType, typeof(API));
+		if (APITypeAttributes.Length == 0)
 		{
-			return APITypeAttribute.GetName();
+			return "NoAPI";
 		}
-		
+		else
+		{
+			return APITypeAttributes[0].GetName();
+		}
+
 		// No attribute is found
 		return "NoAPI";
 	}

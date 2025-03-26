@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using FlareBuildTool.Premake;
 using FlareBuildTool.Solution;
 using FlareBuildTool.Target;
 using FlareCore;
@@ -16,8 +17,10 @@ namespace FlareBuildTool;
 /// Combines all actions needed to be done to build entire solution.
 /// Actually the scheme of building generally looks like this:
 /// Solution:
-///		Target (Project)
-///			Module
+///		Target/
+///			Module/
+///				.Build.cs
+///			.Target.cs
 /// </summary>
 [FlareBuildToolAPI]
 public class FBuildTool : FFlareObject
@@ -31,7 +34,7 @@ public class FBuildTool : FFlareObject
 		
 		SolutionTargets = new List<FTarget>();
 		Solution = CreateObject<FSolution>("Solution");
-		MinimalSolution = CreateObject<FSolution>("MinimalSolution");
+		PremakeBuilder = CreateObject<FPremakeBuilder>("PremakeBuilder");
 	}
 	
 	/// <summary>
@@ -40,14 +43,14 @@ public class FBuildTool : FFlareObject
 	public FSolution Solution;
 	
 	/// <summary>
-	/// A solution to build Flare Build Tool.
-	/// </summary>
-	public FSolution MinimalSolution; // TODO: Generate FlareHorz.sln.minimal.lua via command line argument
-	
-	/// <summary>
 	/// Targets this solution have.
 	/// </summary>
-	private List<FTarget> SolutionTargets;
+	public List<FTarget> SolutionTargets;
+
+	/// <summary>
+	/// Premake5 builder.
+	/// </summary>
+	private FPremakeBuilder PremakeBuilder;
 	
 	/// <summary>
 	/// Run the build process.
@@ -73,7 +76,6 @@ public class FBuildTool : FFlareObject
 		{
 			// Find name of that target
 			string TargetName = Path.GetFileNameWithoutExtension(TargetPath);
-			FLog.Debug("Target Name: " + TargetName);
 			
 			// Create a FTarget instance to store data
 			FTarget Target = CreateObject<FTarget>(TargetName + "Target");
@@ -84,7 +86,7 @@ public class FBuildTool : FFlareObject
 			Target.TargetCsFile.Close();
 			
 			// Compile .Target.cs file at runtime
-			Target.ComplieBuildFile();
+			Target.CompileBuildFile();
 			
 			// Handle modules in that target
 			Target.HandleModules();
@@ -94,10 +96,21 @@ public class FBuildTool : FFlareObject
 		}
 		
 		// Generate FlareHorz.sln.lua
-		// ...
+		string SolutionLuaFileName = "FlareHorz.sln.lua";
+		string SolutionLuaFilePath = Path.Combine(FGlobal.SolutionPath, SolutionLuaFileName);
+		if (File.Exists(SolutionLuaFilePath))
+		{
+			Solution.LuaFile.LoadFile(SolutionLuaFilePath);
+		}
+		else
+		{
+			Solution.LuaFile.CreateFile(FGlobal.SolutionPath, SolutionLuaFileName);
+		}
+		Solution.LuaFile.Close();
+		Solution.GenerateLuaFile();
 		
 		// Generate project files with Premake5
-		// ...
+		PremakeBuilder.GenerateSolutionFiles(Solution.LuaFile.FilePath, "vs2022");
 		
 		return 0;
 	}

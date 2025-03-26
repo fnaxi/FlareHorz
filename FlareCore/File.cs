@@ -84,12 +84,12 @@ public class FFile : FFlareObject
 		
 		// Set file properties
 		FileName = InFileName;
-		FilePath = InFilePath;
+		FilePath = Path.Combine(InFilePath, FileName);
 		
 		// Create file
-		FAssert.Checkf(!File.Exists(InFilePath), "File is already exist!");
+		FAssert.Checkf(!File.Exists(FilePath), "File is already exist!");
 		
-		FileSource = new StreamWriter(InFilePath);
+		FileSource = new StreamWriter(FilePath);
 		bDeletedOrUnloaded = false;
 	}
 	
@@ -135,6 +135,8 @@ public class FFile : FFlareObject
 	/// </summary>
 	public bool IsFileExists()
 	{
+		FAssert.Check(!bDeletedOrUnloaded);
+		
 		return File.Exists(FilePath);
 	}
 	

@@ -21,8 +21,8 @@ public class FTargetRules : FFlareObject
 		
 		TargetType = ETargetType.Executable;
 		TargetLanguage = ETargetLanguage.CPP;
-		CppDialect = 17;
-		CsVersion = 11.0f;
+		CPP_Version = 17;
+		CS_Version = 11.0f;
 		DotNetFrameworkVersion = 4.8f;
 		bRunHeaderTool = false;
 		HeaderToolRunCommand = "v_RunHeaderTool";
@@ -63,13 +63,13 @@ public class FTargetRules : FFlareObject
 	/// C++ dialect. We support 11, 14, 17, 20.
 	/// Only used when TargetLanguage is C++.
 	/// </summary>
-	public int CppDialect;
+	public int CPP_Version;
 
 	/// <summary>
 	/// C# version. We support up to 11.0.
 	/// Only used when TargetLanguage is C#.
 	/// </summary>
-	public float CsVersion;
+	public float CS_Version;
 
 	/// <summary>
 	/// .NET Framework version for C#.

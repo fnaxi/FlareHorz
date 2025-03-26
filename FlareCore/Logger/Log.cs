@@ -60,13 +60,11 @@ public abstract class FLog : FFlareObject
 			LogFile.LoadFile(Path.Combine(WorkingDirectory, LogFileName));
 			
 			// Seperate logs
-			LogFile.WriteSrc("---------------------------------------------------------------------------------------" +
-			                 "---------------------------------------------------------------------------------------" +
-			                 "------");
+			LogFile.WriteSrc("------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------");
 		}
 		else
 		{
-			LogFile.CreateFile(Path.Combine(WorkingDirectory, LogFileName), LogFileName);
+			LogFile.CreateFile(WorkingDirectory, LogFileName);
 		}
 
 		// Create saved log file
@@ -77,7 +75,7 @@ public abstract class FLog : FFlareObject
 		string SavedLogFileName = Configuration + "-Log-" + TimeFormatted + ".fhlog";
 		string SavedLogFilePath = Path.Combine(WorkingDirectory, SavedLogFileName);
 		
-		SavedLogFile.CreateFile(SavedLogFilePath, SavedLogFileName);
+		SavedLogFile.CreateFile(WorkingDirectory, SavedLogFileName);
 		
 		// Initialized now
 		bInitialized = true;
@@ -103,7 +101,7 @@ public abstract class FLog : FFlareObject
 	/// </summary>
 	/// <param name="LogVerbosity">Log verbosity to use.</param>
 	/// <param name="Text">Text to log.</param>
-	private static void Log(ELogVerbosity LogVerbosity, string Text)
+	public static void Log(ELogVerbosity LogVerbosity, string Text)
 	{
 		if (!bInitialized || LogVerbosity == ELogVerbosity.All || LogVerbosity == ELogVerbosity.NoLogging) return;
 		
@@ -137,7 +135,8 @@ public abstract class FLog : FFlareObject
 		
 		// Wrap everything
 		string TimeFormatted = CurrentTime.ToString("HH:mm:ss");
-		string FormattedLogText = "> " + TimeFormatted + "> " + FReflection.GetAPINameFromStackTrace() + "> " + LogVerbosityWrapped + "> " + Text;
+		string APIFormatted = FReflection.GetAPINameFromStackTrace().PadRight(18);
+		string FormattedLogText = "> " + TimeFormatted + "> " + LogVerbosityWrapped + "> " + Text;
 
 		// Log
 		Console.WriteLine(FormattedLogText);

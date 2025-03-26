@@ -12,6 +12,6 @@ public class FlareCoreAPI : API
 	/// </summary>
 	public override string GetName()
 	{
-		return "FlareCoreAPI";
+		return "FlareCore";
 	}
 }

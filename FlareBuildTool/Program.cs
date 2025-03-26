@@ -14,11 +14,6 @@ namespace FlareBuildTool;
 static class FProgram
 {
 	/// <summary>
-	/// Build tool.
-	/// </summary>
-	static private FBuildTool BuildTool = FFlareObject.CreateObject<FBuildTool>("BuildTool");
-	
-	/// <summary>
 	/// Automatically invoked when the application is started.
 	/// </summary>
 	/// <param name="Args">An array of command-line arguments passed to the application</param>
@@ -36,7 +31,7 @@ static class FProgram
 		FAssert.Checkf(FGlobal.SolutionName == "FlareHorz", "Failed to get solution path!");
 		
 		// Run build tool
-		int ExitResult = BuildTool.GuardedMain(Args.Length, Args);
+		int ExitResult = FGlobal.BuildTool.GuardedMain(Args.Length, Args);
 		
 		// Shutdown logger
 		FLog.Shutdown();

@@ -11,6 +11,11 @@ namespace FlareBuildTool;
 public class FGlobal : FFlareObject
 {
 	/// <summary>
+	/// Build tool.
+	/// </summary>
+	static public FBuildTool BuildTool = FFlareObject.CreateObject<FBuildTool>("BuildTool");
+	
+	/// <summary>
 	/// Solution path.
 	/// </summary>
 	public static string SolutionPath;

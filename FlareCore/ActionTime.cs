@@ -23,9 +23,6 @@ public class FActionTime : FFlareObject
 		FinalTime = new TimeSpan();
 		
 		RG = CreateObject<FReentryGuard>("RG");
-		
-		StartInternal();
-		FLog.Debug(GetName() + " was started");
 	}
 	
 	/// <summary>
@@ -51,11 +48,25 @@ public class FActionTime : FFlareObject
 	/// <summary>
 	/// Create object of set type. Can be used only with FFlareObject derived classes.
 	/// </summary>
-	public static FActionTime Start(string InName)
+	public static FActionTime Start(string InName, ELogVerbosity InLogVerbosity = ELogVerbosity.NoLogging, bool bStartLog = true)
 	{
 		FActionTime Instance = CreateObject<FActionTime>(InName);
+		
+		Instance.StartInternal();
+		if (bStartLog)
+		{
+			FLog.Log(InLogVerbosity, Instance.GetName() + " was started");
+		}
+
+		Instance.LogVerbosity = InLogVerbosity;
+		
 		return Instance; 
 	}
+
+	/// <summary>
+	/// Log verbosity to use for logging.
+	/// </summary>
+	private ELogVerbosity LogVerbosity;
 	
 	/// <summary>
 	/// Start action.
@@ -75,7 +86,7 @@ public class FActionTime : FFlareObject
 		TimeEnd = DateTime.Now;
 		FinalTime = TimeEnd - TimeStart;
 		
-		FLog.Debug(GetName() + " finished with " + GetTimeSeconds() + "s elapsed");
+		FLog.Log(LogVerbosity, GetName() + " finished with " + GetTimeSeconds() + "s elapsed");
 	}
 
 	/// <summary>

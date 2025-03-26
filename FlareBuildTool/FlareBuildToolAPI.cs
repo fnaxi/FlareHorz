@@ -14,6 +14,6 @@ public class FlareBuildToolAPI : API
 	/// </summary>
 	public override string GetName()
 	{
-		return "FlareBuildToolAPI";
+		return "FlareBuildTool";
 	}
 }

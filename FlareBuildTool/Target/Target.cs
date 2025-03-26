@@ -52,9 +52,9 @@ public sealed class FTarget : FFlareObject
 	/// <summary>
 	/// Compile .Target.cs file at runtime to get FTargetRules.
 	/// </summary>
-	public void ComplieBuildFile()
+	public void CompileBuildFile()
 	{
-		FActionTime AT_Compiling = FActionTime.Start("AT_Compiling");
+		FActionTime AT_Compiling = FActionTime.Start("AT_Compiling" + Name, ELogVerbosity.Info);
 		
 		// Info for compiling
 		CSharpCodeProvider CodeProvider = new CSharpCodeProvider();
