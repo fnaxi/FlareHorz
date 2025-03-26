@@ -11,8 +11,10 @@ FlareHorz.sln.lua
 !FlareHorz.sln.minimal.lua
 FlareHorz.sln.DotSettings.user
 
-FlareBuildTool/FlareBuildTool.csproj
-FlareCore/FlareCore.csproj
+# Project files
+*.csproj
+*.vcxproj
+*.vcxproj.filters
 
 # Binaries and intermediate
 Binaries/
@@ -20,3 +22,4 @@ Intermediate/
 
 # Logs
 **/Logs/
+*.fhlog
