@@ -1,5 +1,6 @@
 ﻿// CopyRight FlareHorz Team. All Rights Reserved.
 
+using System;
 using System.Diagnostics;
 using System.Reflection;
 using FlareCore.Logger;
@@ -101,13 +102,15 @@ public class FAssert : FFlareObject
 public class FReentryGuard : FFlareObject
 {
 	/// <summary>
-	/// Sets default values.
+	/// Calls when object of that class is created.
 	/// </summary>
-	public FReentryGuard()
-	{
+	protected override void OnObjectCreated()
+	{ 
+		base.OnObjectCreated();
+
 		bIsReentered = false;
 	}
-
+	
 	/// <summary>
 	/// Halts execution if called more than once.
 	/// </summary>

@@ -1,5 +1,6 @@
 ﻿// CopyRight FlareHorz Team. All Rights Reserved.
 
+using System;
 using System.IO;
 using System.Diagnostics;
 using System.Reflection;
@@ -33,16 +34,16 @@ public abstract class FLog : FFlareObject
 	/// <param name="SolutionPath">Where to create the log file.</param>
 	public static void Initialize(string SolutionPath, string ProjectName)
 	{
-#if DEBUG
+#if FH_DEBUG
 		string Configuration = "Debug";
-#elif DEVELOPMENT
+#elif FH_DEVELOPMENT
 		string Configuration = "Development";
 #else
 		#error Unknown configuration
 #endif
 
 		// There can be no Logs/ folder
-		string WorkingDirectory = Path.Combine(Path.Combine(SolutionPath, ProjectName), "Logs");
+		string WorkingDirectory = Path.Combine(SolutionPath, ProjectName, "Logs");
 		if (!Directory.Exists(WorkingDirectory))
 		{
 			Directory.CreateDirectory(WorkingDirectory);
@@ -155,7 +156,7 @@ public abstract class FLog : FFlareObject
 	public static void Info(string Text) { Log(ELogVerbosity.Info, Text); }
 	public static void Debug(string Text)
 	{
-#if DEBUG
+#if FH_DEBUG
 		Log(ELogVerbosity.Debug, Text);
 #endif
 	}

@@ -1,5 +1,6 @@
 ﻿// CopyRight FlareHorz Team. All Rights Reserved.
 
+using System.Collections.Generic;
 using FlareCore;
 using FlareBuildTool.Solution;
 
@@ -23,16 +24,14 @@ public class FTargetRules : FFlareObject
 		CppDialect = 17;
 		CsVersion = 11.0f;
 		DotNetFrameworkVersion = 4.8f;
-		bRunHeaderTool = true;
+		bRunHeaderTool = false;
 		HeaderToolRunCommand = "v_RunHeaderTool";
 		PreBuildCommands = new List<string>();
 		PostBuildCommands = new List<string>();
 		LinkedTargets = new List<string>();
 		Links = new List<string>();
-		PublicIncludeDirectories = new List<string>();
-		PrivateIncludeDirectories = new List<string>();
-		PublicLibraryDirectories = new List<string>();
-		PrivateLibraryDirectories = new List<string>();
+		IncludeDirectories = new List<string>();
+		LibraryDirectories = new List<string>();
 		Files = new List<string>();
 		Defines = new List<string>();
 		DevelopmentConfigurationRules = new FConfigurationTargetRules();
@@ -44,6 +43,11 @@ public class FTargetRules : FFlareObject
 		bStartupProject = false;
 		Group = "";
 	}
+	
+	/// <summary>
+	/// Solution items.
+	/// </summary>
+	public static List<string> SolutionItems = new List<string>();
 	
 	/// <summary>
 	/// Type of the target.
@@ -74,7 +78,7 @@ public class FTargetRules : FFlareObject
 	public float DotNetFrameworkVersion;
 
 	/// <summary>
-	/// Command to run Dark Header Tool.
+	/// Command to run Flare Header Tool.
 	/// </summary>
 	public string HeaderToolRunCommand;
 	
@@ -89,29 +93,19 @@ public class FTargetRules : FFlareObject
 	public List<string> Files;
 
 	/// <summary>
-	/// Defines for this project. You can use "MyDefine=SomeCode".
+	/// Defines for this target. You can use "MyDefine=SomeCode".
 	/// </summary>
 	public List<string> Defines;
 	
 	/// <summary>
-	/// Includes that will be used for this target and if this target will be added to another one's LinkedTargets these includes will be added.
+	/// Includes that will be used for this target and exposed to others.
 	/// </summary>
-	public List<string> PublicIncludeDirectories;
-	
-	/// <summary>
-	/// Includes that only used for this target.
-	/// </summary>
-	public List<string> PrivateIncludeDirectories;
+	public List<string> IncludeDirectories;
 
 	/// <summary>
 	/// Libraries this target have that will be exposed to linked targets.
 	/// </summary>
-	public List<string> PublicLibraryDirectories;
-
-	/// <summary>
-	/// Libraries this target have.
-	/// </summary>
-	public List<string> PrivateLibraryDirectories;
+	public List<string> LibraryDirectories;
 	
 	/// <summary>
 	/// Rules that are specific for Development configuration.

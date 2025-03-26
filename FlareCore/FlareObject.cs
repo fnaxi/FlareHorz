@@ -1,5 +1,7 @@
 ﻿// CopyRight FlareHorz Team. All Rights Reserved.
 
+using System;
+using System.Collections.Generic;
 using FlareCore.Logger;
 
 namespace FlareCore;
@@ -78,19 +80,12 @@ public class FFlareObject
 	/// </summary>
 	public static void PrintObjectNames()
 	{
-		FLog.Debug("Objects:");
+		FLog.Debug("== Objects derived from FFlareObject == ");
 		for (int i = 0; i < ObjectNames.Count; i++)
 		{
-			FLog.Debug("[" + i + "]> " + ObjectNames[i]);
+			FLog.Debug("        [" + i + "]> " + ObjectNames[i]);
 		}
-	}
-
-	/// <summary>
-	/// Check is there object with same name.
-	/// </summary>
-	public static bool IsThereObjectWithSameName(string InName)
-	{
-		return ObjectNames.Find(s => s == InName) == InName;
+		FLog.Debug("================= END ================= ");
 	}
 }
 

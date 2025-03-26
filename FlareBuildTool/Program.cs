@@ -1,5 +1,7 @@
 ﻿// CopyRight FlareHorz Team. All Rights Reserved.
 
+using System.IO;
+using System.Linq;
 using FlareCore;
 using FlareCore.Logger;
 
@@ -20,7 +22,7 @@ static class FProgram
 	/// Automatically invoked when the application is started.
 	/// </summary>
 	/// <param name="Args">An array of command-line arguments passed to the application</param>
-	static Int32 Main(string[] Args)
+	static int Main(string[] Args)
 	{
 		// Find solution path
 		FGlobal.SolutionPath = GetSolutionDirectory();
@@ -34,10 +36,7 @@ static class FProgram
 		FAssert.Checkf(FGlobal.SolutionName == "FlareHorz", "Failed to get solution path!");
 		
 		// Run build tool
-		Int32 ExitResult = BuildTool.GuardedMain(Args.Length, Args);
-		
-		// Print object names
-		FFlareObject.PrintObjectNames();
+		int ExitResult = BuildTool.GuardedMain(Args.Length, Args);
 		
 		// Shutdown logger
 		FLog.Shutdown();
@@ -50,6 +49,7 @@ static class FProgram
 	/// </summary>
 	private static string GetSolutionDirectory()
 	{
-		return FFile.GetParent(Directory.GetCurrentDirectory(), 4);
+		// return FFile.GetParent(Directory.GetCurrentDirectory(), 4);
+		return FFile.GetParent(Directory.GetCurrentDirectory(), 2);
 	}
 }

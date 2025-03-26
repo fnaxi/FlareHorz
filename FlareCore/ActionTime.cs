@@ -1,5 +1,8 @@
 ﻿// CopyRight FlareHorz Team. All Rights Reserved.
 
+using System;
+using FlareCore.Logger;
+
 namespace FlareCore;
 
 /// <summary>
@@ -17,8 +20,12 @@ public class FActionTime : FFlareObject
 		
 		TimeStart = new DateTime();
 		TimeEnd = new DateTime();
-
 		FinalTime = new TimeSpan();
+		
+		RG = CreateObject<FReentryGuard>("RG");
+		
+		StartInternal();
+		FLog.Debug(GetName() + " was started");
 	}
 	
 	/// <summary>
@@ -35,11 +42,25 @@ public class FActionTime : FFlareObject
 	/// Final time.
 	/// </summary>
 	private TimeSpan FinalTime;
+
+	/// <summary>
+	/// Reentry guard.
+	/// </summary>
+	private FReentryGuard RG;
+	
+	/// <summary>
+	/// Create object of set type. Can be used only with FFlareObject derived classes.
+	/// </summary>
+	public static FActionTime Start(string InName)
+	{
+		FActionTime Instance = CreateObject<FActionTime>(InName);
+		return Instance; 
+	}
 	
 	/// <summary>
 	/// Start action.
 	/// </summary>
-	public void Start()
+	private void StartInternal()
 	{
 		TimeStart = DateTime.Now;
 	}
@@ -49,9 +70,12 @@ public class FActionTime : FFlareObject
 	/// </summary>
 	public void Stop()
 	{
+		RG.CheckNoReentry();
+		
 		TimeEnd = DateTime.Now;
-
 		FinalTime = TimeEnd - TimeStart;
+		
+		FLog.Debug(GetName() + " finished with " + GetTimeSeconds() + "s elapsed");
 	}
 
 	/// <summary>
@@ -61,20 +85,12 @@ public class FActionTime : FFlareObject
 	{
 		return (FinalTime.Hours + "h " + FinalTime.Minutes + "m " + FinalTime.Seconds + "s ");
 	}
-	
-	/// <summary>
-	/// Get final time in string.
-	/// </summary>
-	public string GetTimeStringSeconds()
-	{
-		return GetTimeSeconds().ToString();
-	}
 
 	/// <summary>
 	/// Get final time.
 	/// </summary>
-	public double GetTimeSeconds()
+	public float GetTimeSeconds()
 	{
-		return FinalTime.TotalSeconds;
+		return (float)Math.Round(FinalTime.TotalSeconds + FinalTime.Milliseconds / 1000.0, 2);
 	}
 }

@@ -1,5 +1,9 @@
 ﻿// CopyRight FlareHorz Team. All Rights Reserved.
 
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using FlareBuildTool.Solution;
 using FlareBuildTool.Target;
 using FlareCore;
@@ -38,7 +42,7 @@ public class FBuildTool : FFlareObject
 	/// <summary>
 	/// A solution to build Flare Build Tool.
 	/// </summary>
-	public FSolution MinimalSolution;
+	public FSolution MinimalSolution; // TODO: Generate FlareHorz.sln.minimal.lua via command line argument
 	
 	/// <summary>
 	/// Targets this solution have.
@@ -59,6 +63,41 @@ public class FBuildTool : FFlareObject
 			FLog.Warn("No targets found! Exiting...");
 			return 1;
 		}
+		else
+		{
+			FLog.Info("Found " + TargetPaths.Length + " targets");
+		}
+
+		// Collect info about each target and save into FTarget
+		foreach (string TargetPath in TargetPaths)
+		{
+			// Find name of that target
+			string TargetName = Path.GetFileNameWithoutExtension(TargetPath);
+			FLog.Debug("Target Name: " + TargetName);
+			
+			// Create a FTarget instance to store data
+			FTarget Target = CreateObject<FTarget>(TargetName + "Target");
+			Target.Name = TargetName;
+			
+			// Save info about .Target.cs location
+			Target.TargetCsFile.LoadFile(Path.Combine(TargetPath, TargetName + ".Target.cs"));
+			Target.TargetCsFile.Close();
+			
+			// Compile .Target.cs file at runtime
+			Target.ComplieBuildFile();
+			
+			// Handle modules in that target
+			Target.HandleModules();
+			
+			// Update solution targets
+			SolutionTargets.Add(Target);
+		}
+		
+		// Generate FlareHorz.sln.lua
+		// ...
+		
+		// Generate project files with Premake5
+		// ...
 		
 		return 0;
 	}
@@ -71,7 +110,7 @@ public class FBuildTool : FFlareObject
 	private string[] SearchForTargets()
 	{
 		// Search for all folders that can be targets
-		string[] TargetPaths = Directory.GetDirectories(FGlobal.SolutionPath)
+		string[] PossibleTargetPaths = Directory.GetDirectories(FGlobal.SolutionPath)
 			.Where(s => !(s.EndsWith(".git")))
 			.Where(s => !(s.EndsWith(".github")))
 			.Where(s => !(s.EndsWith(".idea")))
@@ -79,26 +118,20 @@ public class FBuildTool : FFlareObject
 			.Where(s => !(s.EndsWith(".vscode")))
 			.Where(s => !(s.EndsWith("images")))
 			.Where(s => !(s.EndsWith("Binaries")))
-			.Where(s => !(s.EndsWith("FlareCore")))       // C# begin
-			.Where(s => !(s.EndsWith("FlareBuildTool")))
-			.Where(s => !(s.EndsWith("FlareHeaderTool"))) // C# end
+			.Where(s => !(s.EndsWith("Intermediate")))
 			.ToArray();
 
 		// Check is there .Target.cs if yes then it's FlareHorz target
 		List<string> CheckedTargetPaths = new List<string>();
-		foreach (string TargetPath in TargetPaths)
+		foreach (string TargetPath in PossibleTargetPaths)
 		{
 			string TargetName = TargetPath.Split('\\').Last();
-			if (File.Exists(Path.Combine(TargetPath, TargetName + ".Target.cs")))
+			
+			string TargetCsPath = Path.Combine(TargetPath, TargetName + ".Target.cs");
+			if (File.Exists(TargetCsPath))
 			{
 				CheckedTargetPaths.Add(TargetPath);
 			}
-		}
-		
-		// Log target paths
-		foreach (string TargetPath in TargetPaths)
-		{
-			FLog.Debug("Target: " + TargetPath);
 		}
 		
 		// Return it

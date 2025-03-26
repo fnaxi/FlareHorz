@@ -1,5 +1,8 @@
 ﻿// CopyRight FlareHorz Team. All Rights Reserved.
 
+using System.IO;
+using System.Linq;
+
 namespace FlareCore;
 
 /// <summary>

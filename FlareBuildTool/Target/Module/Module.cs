@@ -17,7 +17,7 @@ public class FModule : FFlareObject
 	public string Name;
 
 	/// <summary>
-	/// Followed this style: "{ModuleName}_API".
+	/// Followed by this style: "{ModuleName}_API".
 	/// </summary>
 	public string APIMacro;
 }

@@ -24,9 +24,9 @@ public class FGlobal : FFlareObject
 	/// Current configuration.
 	/// </summary>
 	public static string Configuration = 
-#if DEBUG
+#if FH_DEBUG
 		"Debug";
-#elif DEVELOPMENT
+#elif FH_DEVELOPMENT
 		"Development";
 #else
 		#error Unknown configuration

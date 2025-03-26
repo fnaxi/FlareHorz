@@ -1,5 +1,6 @@
 ﻿// CopyRight FlareHorz Team. All Rights Reserved.
 
+using System.Collections.Generic;
 using FlareCore;
 
 namespace FlareBuildTool.Solution;

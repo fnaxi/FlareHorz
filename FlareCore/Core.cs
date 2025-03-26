@@ -1,5 +1,7 @@
 ﻿// CopyRight FlareHorz Engine Development Team. All Rights Reserved.
 
+using System;
+
 namespace FlareCore;
 
 /// <summary>
