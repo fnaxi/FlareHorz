@@ -80,6 +80,8 @@ public sealed class FTarget : FFlareObject
 			FTargetRules RuntimeTargetRules = (FTargetRules) Activator.CreateInstance(RuntimeType);
 			FAssert.Checkf(RuntimeTargetRules != null, "Failed to cast F" + Name + "Target to FTargetRules");
 			
+			RuntimeTargetRules.Initialize("F" + Name + "Target");
+			
 			// Set module rules from .Target.cs
 			TargetRules = RuntimeTargetRules;
 		}
@@ -101,5 +103,59 @@ public sealed class FTarget : FFlareObject
 	public void HandleModules()
 	{
 		// TODO: Modules
+	}
+
+	/// <summary>
+	/// Print all info about target.
+	/// </summary>
+	public void PrintTargetInfo()
+	{
+		FLog.Debug("========== " + Name.ToUpper() + " TARGET INFO ==========");
+		FLog.Debug("Target Name: " + Name);
+		FLog.Debug("Group: "  + TargetRules.Group);
+		FLog.Debug("Language: " + TargetRules.TargetLanguage);
+		FLog.Debug("Type: " + TargetRules.TargetType);
+		FLog.Debug("IsStartup: " + TargetRules.bStartupTarget);
+		if (TargetRules.TargetLanguage == ETargetLanguage.CS)
+		{
+			FLog.Debug("C# Ver: " + TargetRules.CS_Version);
+			FLog.Debug(".NET Ver: " + TargetRules.DotNetFrameworkVersion);
+		}
+		else if (TargetRules.TargetLanguage == ETargetLanguage.CPP)
+		{
+			FLog.Debug("C++ Ver: " + TargetRules.CPP_Version);
+		}
+		FLog.Debug("RunHT: " + TargetRules.bRunHeaderTool);
+		if (TargetRules.bRunHeaderTool)
+		{
+			FLog.Debug("HTCmd: " + TargetRules.HeaderToolRunCommand);
+		}
+		foreach (string FilePath in TargetRules.Files)
+		{
+			FLog.Debug("FilePaths: " + FilePath);
+		}
+		foreach (string Define in TargetRules.Defines)
+		{
+			FLog.Debug("Define: " + Define);
+		}
+		foreach (string Link in TargetRules.Links)
+		{
+			FLog.Debug("Link: " + Link);
+		}
+		foreach (string LinkedTarget in TargetRules.LinkTargets)
+		{
+			FLog.Debug("LinkedTarget: " + LinkedTarget);
+		}
+		foreach (string IncludeDirectory in TargetRules.IncludeDirectories)
+		{
+			FLog.Debug("IncludeDirectory: " + IncludeDirectory);
+		}
+		foreach (string LibraryDirectory in TargetRules.LibraryDirectories)
+		{
+			FLog.Debug("LibraryDirectory: " + LibraryDirectory);
+		}
+		// TODO: Print modules info
+		// TODO: print configuration rules info
+		FLog.Debug("==================== END ====================");
 	}
 }

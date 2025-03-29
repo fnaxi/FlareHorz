@@ -17,10 +17,13 @@ class FFlareCoreTarget : FTargetRules
 	{
 		base.OnObjectCreated();
 
-		TargetType = ETargetType.Executable;
+		TargetType = ETargetType.DynamicLibrary;
 		TargetLanguage = ETargetLanguage.CS;
 		
-		Links.AddRange(new string[] { "System" });
+		Links.AddRange(new string[]
+		{
+			"System"
+		});
 
 		Group = "Programs";
 	}

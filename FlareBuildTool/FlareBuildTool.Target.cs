@@ -19,8 +19,17 @@ class FFlareBuildToolTarget : FTargetRules
 
 		TargetType = ETargetType.Executable;
 		TargetLanguage = ETargetLanguage.CS;
+		bStartupTarget = true;
 		
-		Links.AddRange(new string[] { "System", "FlareCore" });
+		Links.AddRange(new string[]
+		{
+			"System", "FlareCore"
+		});
+
+		Files.AddRange(new string[]
+		{
+			"/FlareBuildTool/**.lua" 
+		});
 
 		Group = "Programs";
 	}

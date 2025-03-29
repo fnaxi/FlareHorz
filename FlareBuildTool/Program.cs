@@ -7,6 +7,10 @@ using FlareCore.Logger;
 
 namespace FlareBuildTool;
 
+#if FH_SHIPPING
+	#warning Building FlareBuildTool in Shipping configuration!
+#endif
+
 /// <summary>
 /// The entry point of the application.
 /// </summary>
@@ -32,6 +36,7 @@ static class FProgram
 		
 		// Run build tool
 		int ExitResult = FGlobal.BuildTool.GuardedMain(Args.Length, Args);
+		FLog.Log((ExitResult == 0 ? ELogVerbosity.Info : ELogVerbosity.Error), "Exited with code " + ExitResult + "!");
 		
 		// Shutdown logger
 		FLog.Shutdown();

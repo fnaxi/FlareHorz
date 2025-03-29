@@ -18,3 +18,31 @@ public class API : Attribute
 		return "NoAPI";
 	}
 }
+
+/// <summary>
+/// Attribute for indicating current method in logger.
+/// </summary>
+[AttributeUsage(AttributeTargets.Method)]
+public class FlareFunc : Attribute
+{
+	/// <summary>
+	/// Sets default values.
+	/// </summary>
+	public FlareFunc(string InName)
+	{
+		Name = InName;
+	}
+	
+	/// <summary>
+	/// Name of this function.
+	/// </summary>
+	private string Name;
+	
+	/// <summary>
+	/// Get API string.
+	/// </summary>
+	public string GetName()
+	{
+		return Name;
+	}
+}

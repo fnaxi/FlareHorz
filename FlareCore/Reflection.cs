@@ -16,12 +16,12 @@ public class FReflection : FFlareObject
 	/// Get the API name from the stack trace by inspecting the calling class.
 	/// </summary>
 	/// <returns>The API name.</returns>
-	public static string GetAPINameFromStackTrace()
+	public static string GetAPINameFromStackTrace(bool bLVMethods)
 	{
 		// TODO: Null reference warning for StackFrame, Method and DeclaringType (can't use FAssert here cause FLog is uninitialized)
 		
 		StackTrace StackTrace = new StackTrace();
-		StackFrame? StackFrame = StackTrace.GetFrame(2); // The method that called Log()
+		StackFrame? StackFrame = StackTrace.GetFrame(bLVMethods ? 3 : 2); // The method that called Log()
 		MethodBase? Method = StackFrame.GetMethod();
 		Type? DeclaringType = Method.DeclaringType;
 		

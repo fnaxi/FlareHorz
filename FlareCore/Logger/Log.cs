@@ -101,7 +101,8 @@ public abstract class FLog : FFlareObject
 	/// </summary>
 	/// <param name="LogVerbosity">Log verbosity to use.</param>
 	/// <param name="Text">Text to log.</param>
-	public static void Log(ELogVerbosity LogVerbosity, string Text)
+	/// <param name="bLVMethods">INTERNAL! Is run by Log Verbosity methods or not.</param>
+	public static void Log(ELogVerbosity LogVerbosity, string Text, bool bLVMethods = false)
 	{
 		if (!bInitialized || LogVerbosity == ELogVerbosity.All || LogVerbosity == ELogVerbosity.NoLogging) return;
 		
@@ -118,7 +119,7 @@ public abstract class FLog : FFlareObject
 				LogVerbosityWrapped = "WARN ";
 				break;
 			case ELogVerbosity.Info:
-				Console.ForegroundColor = ConsoleColor.White;
+				Console.ForegroundColor = ConsoleColor.Magenta;
 				LogVerbosityWrapped = "INFO ";
 				break;
 			case ELogVerbosity.Debug:
@@ -135,7 +136,7 @@ public abstract class FLog : FFlareObject
 		
 		// Wrap everything
 		string TimeFormatted = CurrentTime.ToString("HH:mm:ss");
-		string APIFormatted = FReflection.GetAPINameFromStackTrace().PadRight(18);
+		string APIFormatted = FReflection.GetAPINameFromStackTrace(bLVMethods).PadRight(18);
 		string FormattedLogText = "> " + TimeFormatted + "> " + LogVerbosityWrapped + "> " + Text;
 
 		// Log
@@ -150,13 +151,13 @@ public abstract class FLog : FFlareObject
 	/// <summary>
 	/// Wrappers for different log verbosities.
 	/// </summary>
-	public static void Error(string Text) { Log(ELogVerbosity.Error, Text); }
-	public static void Warn(string Text) { Log(ELogVerbosity.Warning, Text); }
-	public static void Info(string Text) { Log(ELogVerbosity.Info, Text); }
+	public static void Error(string Text) { Log(ELogVerbosity.Error, Text, true); }
+	public static void Warn(string Text) { Log(ELogVerbosity.Warning, Text, true); }
+	public static void Info(string Text) { Log(ELogVerbosity.Info, Text, true); }
 	public static void Debug(string Text)
 	{
 #if FH_DEBUG
-		Log(ELogVerbosity.Debug, Text);
+		Log(ELogVerbosity.Debug, Text, true);
 #endif
 	}
 }

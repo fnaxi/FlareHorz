@@ -21,6 +21,8 @@ public class FTargetRules : FFlareObject
 		
 		TargetType = ETargetType.Executable;
 		TargetLanguage = ETargetLanguage.CPP;
+		BinariesPath = Quote("Binaries/") + " .. v_OutputDir";
+		IntermediatePath = Quote("Intermediate/") + " .. v_OutputDir";
 		CPP_Version = 17;
 		CS_Version = 11.0f;
 		DotNetFrameworkVersion = 4.8f;
@@ -28,19 +30,16 @@ public class FTargetRules : FFlareObject
 		HeaderToolRunCommand = "v_RunHeaderTool";
 		PreBuildCommands = new List<string>();
 		PostBuildCommands = new List<string>();
-		LinkedTargets = new List<string>();
+		LinkTargets = new List<string>();
 		Links = new List<string>();
 		IncludeDirectories = new List<string>();
 		LibraryDirectories = new List<string>();
 		Files = new List<string>();
 		Defines = new List<string>();
-		DevelopmentConfigurationRules = new FConfigurationTargetRules();
-		DevelopmentConfigurationRules.ForWhichConfiguration = EConfiguration.Development;
-		DebugConfigurationRules = new FConfigurationTargetRules();
-		DebugConfigurationRules.ForWhichConfiguration = EConfiguration.Debug;
-		ShippingConfigurationRules = new FConfigurationTargetRules();
-		ShippingConfigurationRules.ForWhichConfiguration = EConfiguration.Shipping;
-		bStartupProject = false;
+		Development = CreateObject<FConfRules>("CR_Development");
+		Debug = CreateObject<FConfRules>("CR_Debug");
+		Shipping = CreateObject<FConfRules>("CR_Shipping");
+		bStartupTarget = false;
 		Group = "";
 	}
 	
@@ -58,6 +57,16 @@ public class FTargetRules : FFlareObject
 	/// Language this target use.
 	/// </summary>
 	public ETargetLanguage TargetLanguage;
+
+	/// <summary>
+	/// Binaries path.
+	/// </summary>
+	public string BinariesPath;
+
+	/// <summary>
+	/// Intermediate path.
+	/// </summary>
+	public string IntermediatePath;
 
 	/// <summary>
 	/// C++ dialect. We support 11, 14, 17, 20.
@@ -110,17 +119,17 @@ public class FTargetRules : FFlareObject
 	/// <summary>
 	/// Rules that are specific for Development configuration.
 	/// </summary>
-	public FConfigurationTargetRules DevelopmentConfigurationRules;
+	public FConfRules Development;
 	
 	/// <summary>
 	/// Rules that are specific for Debug configuration.
 	/// </summary>
-	public FConfigurationTargetRules DebugConfigurationRules;
+	public FConfRules Debug;
 	
 	/// <summary>
 	/// Rules that are specific for Shipping configuration.
 	/// </summary>
-	public FConfigurationTargetRules ShippingConfigurationRules;
+	public FConfRules Shipping;
 	
 	/// <summary>
 	/// Pre-build commands.
@@ -135,7 +144,7 @@ public class FTargetRules : FFlareObject
 	/// <summary>
 	/// Linked targets. In difference with Links, LinkedTargets will expose public includes and etc to this one.
 	/// </summary>
-	public List<string> LinkedTargets;
+	public List<string> LinkTargets;
 
 	/// <summary>
 	/// Links this target have. Used for third-party generally.
@@ -145,7 +154,7 @@ public class FTargetRules : FFlareObject
 	/// <summary>
 	/// Is startup project.
 	/// </summary>
-	public bool bStartupProject;
+	public bool bStartupTarget;
 	
 	/// <summary>
 	/// Group, actually solution folders. Use dots to make subgroups.
@@ -156,7 +165,7 @@ public class FTargetRules : FFlareObject
 	/// <summary>
 	/// Setup target info.
 	/// </summary>
-	public void SetTargetInfo(ETargetType InTargetType, ETargetLanguage InTargetLanguage)
+	protected void SetTargetInfo(ETargetType InTargetType, ETargetLanguage InTargetLanguage)
 	{
 		TargetType = InTargetType;
 		TargetLanguage = InTargetLanguage;

@@ -63,6 +63,7 @@ public class FBuildTool : FFlareObject
 		string[] TargetPaths = SearchForTargets();
 		if (TargetPaths.Length == 0)
 		{
+			// There should be at least FlareBuildTool and FlareCore
 			FLog.Warn("No targets found! Exiting...");
 			return 1;
 		}
@@ -144,6 +145,10 @@ public class FBuildTool : FFlareObject
 			if (File.Exists(TargetCsPath))
 			{
 				CheckedTargetPaths.Add(TargetPath);
+			}
+			else
+			{
+				FLog.Warn(TargetName + " is not a target!");
 			}
 		}
 		

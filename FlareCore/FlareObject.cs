@@ -40,9 +40,10 @@ public class FFlareObject
 	/// <summary>
 	/// Method to perform initialization.
 	/// </summary>
-	protected void Initialize(string Name)
+	public void Initialize(string Name)
 	{
 		FlareName = Name;
+		ObjectNames.Add(Name);
 		OnObjectCreated();
 	}
 	
@@ -53,7 +54,6 @@ public class FFlareObject
 	{
 		T Instance = new T();
 		Instance.Initialize(Name);
-		ObjectNames.Add(Name);
 		return Instance; 
 	}
 
@@ -63,6 +63,14 @@ public class FFlareObject
 	public string GetName()
 	{
 		return FlareName;
+	}
+	
+	/// <summary>
+	/// Quote the text.
+	/// </summary>
+	protected string Quote(string InText)
+	{
+		return "\"" + InText + "\"";
 	}
 	
 	/// <summary>

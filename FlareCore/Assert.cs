@@ -24,12 +24,12 @@ public class FAssert : FFlareObject
 		switch (bVerify)
 		{
 			case true:
-				FLog.Error("Verify assertion failed!");
-				LogAssertInfo(Message);
+				FLog.Warn("Verify assertion failed!");
+				LogAssertInfo(Message, bVerify);
 				break;
 			case false:
 				FLog.Error("Assertion failed!");
-				LogAssertInfo(Message);
+				LogAssertInfo(Message, bVerify);
 				Environment.Exit(1);
 				break;
 		}
@@ -38,8 +38,14 @@ public class FAssert : FFlareObject
 	/// <summary>
 	/// Log info about current assert.
 	/// </summary>
-	private static void LogAssertInfo(string InMessage)
+	private static void LogAssertInfo(string InMessage, bool bVerify)
 	{
+		ELogVerbosity LV = ELogVerbosity.Error;
+		if (bVerify)
+		{
+			LV = ELogVerbosity.Warning;
+		}
+		
 		// Get stack info
 		StackFrame StackInstance = new StackFrame(3, true); // Skip LogAssertInfo(), Assert() and Verify()/Check()/etc.
 		
@@ -49,50 +55,81 @@ public class FAssert : FFlareObject
 		int EpxrLineNumber = StackInstance.GetFileLineNumber();
 		
 		// Log everything
-		FLog.Error(EpxrMethod + ":" + " in " + ExprFileName + " on " + EpxrLineNumber + " line");
+		FLog.Log(LV, EpxrMethod.ToString());
+		FLog.Log(LV, "In " + ExprFileName + " on " + EpxrLineNumber + " line");
 		if (InMessage != string.Empty)
 		{
-			FLog.Error("Message: " + InMessage);
+			FLog.Log(LV, "Message: " + InMessage);
 		}
 
 		// Shutdown logger
-		FLog.Shutdown();
+		if (!bVerify)
+		{
+			FLog.Shutdown();
+		}
 	}
-	
+
 	/// <summary>
 	/// Checks condition, if it's false - crash application and log details.
 	/// Works in both Debug and Development.
+	/// <returns>bCondition.</returns>
 	/// </summary>
-	public static void Check(bool bCondition) { Assert(bCondition); }
-	public static void Checkf(bool bCondition, string Message) { Assert(bCondition, Message); }
-	
-	/// <summary>
-	/// Checks condition, if it's false - log error, does not crash application.
-	/// Works in both Debug and Development.
-	/// </summary>
-	public static void Verify(bool bCondition) { Assert(bCondition, "", true); }
-	public static void Verifyf(bool bCondition, string Message) { Assert(bCondition, Message, true); }
-	
-	/// <summary>
-	/// Same as Check() but works only Debug, intended for something that is slow.
-	/// </summary>
-	public static void CheckSlow(bool bCondition)
+	public static bool Check(bool bCondition)
 	{
-#if DEBUG
 		Assert(bCondition);
+		return bCondition;
+	}
+
+	public static bool Checkf(bool bCondition, string Message)
+	{
+		Assert(bCondition, Message);
+		return bCondition;
+	}
+
+	/// <summary>
+	/// Checks condition, if it's false - log warning but does not crash application.
+	/// Works in both Debug and Development.
+	/// <returns>bCondition.</returns>
+	/// </summary>
+	public static bool Verify(bool bCondition)
+	{
+		Assert(bCondition, "", true);
+		return bCondition;
+	}
+	public static bool Verifyf(bool bCondition, string Message) 
+	{ 
+		Assert(bCondition, Message, true);
+		return bCondition; 
+	}
+	
+	/// <summary>
+	/// Same as Check() but works only Debug, intended for something that is slow to check.
+	/// <returns>bCondition.</returns>
+	/// </summary>
+	public static bool CheckSlow(bool bCondition)
+	{
+#if FH_DEBUG
+		Assert(bCondition);
+		return bCondition;
+#else
+		return false;
 #endif
 	}
-	public static void CheckfSlow(bool bCondition, string Message)
+	public static bool CheckfSlow(bool bCondition, string Message)
 	{
-#if DEBUG
+#if FH_DEBUG
 		Assert(bCondition, Message);
+		return bCondition;
+#else
+		return false;
 #endif
 	}
 	
 	/// <summary>
 	/// Should be used for pieces of code which should never be executed.
+	/// <returns>bCondition.</returns>
 	/// </summary>
-	public static void CheckNoEntry() { Check(false); }
+	public static bool CheckNoEntry() { return Check(false); }
 }
 
 /// <summary>

@@ -6,10 +6,10 @@ using FlareCore;
 namespace FlareBuildTool.Solution;
 
 /// <summary>
-/// Target rules that are specific to selected configuration.
+/// Target rules that are specific to configuration.
 /// </summary>
 [FlareBuildToolAPI]
-public class FConfigurationTargetRules : FFlareObject
+public class FConfRules : FFlareObject
 {
 	/// <summary>
 	/// Calls when object of that class is created.
@@ -25,9 +25,4 @@ public class FConfigurationTargetRules : FFlareObject
 	/// Defines this configuration have.
 	/// </summary>
 	public List<string> Defines;
-	
-	/// <summary>
-	/// For which configuration this rules is.
-	/// </summary>
-	public EConfiguration ForWhichConfiguration;
 }

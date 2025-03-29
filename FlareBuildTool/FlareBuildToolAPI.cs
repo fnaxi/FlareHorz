@@ -17,3 +17,17 @@ public class FlareBuildToolAPI : API
 		return "FlareBuildTool";
 	}
 }
+
+/// <summary>
+/// API for .Target.cs and .Build.cs files.
+/// </summary>
+public class BuildRulesAPI : API
+{
+	/// <summary>
+	/// Get API string.
+	/// </summary>
+	public override string GetName()
+	{
+		return "BuildRules";
+	}
+}
