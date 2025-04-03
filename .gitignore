@@ -8,6 +8,7 @@
 # Solution files
 FlareHorz.sln
 FlareHorz.sln.lua
+FlareHorz.sln.build.lua
 !FlareHorz.sln.minimal.lua
 FlareHorz.sln.DotSettings.user
 
