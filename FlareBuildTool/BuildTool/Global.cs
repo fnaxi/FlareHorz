@@ -1,5 +1,6 @@
 ﻿// CopyRight FlareHorz Team. All Rights Reserved.
 
+using FlareBuildTool.BuildTool;
 using FlareCore;
 
 namespace FlareBuildTool;
@@ -33,6 +34,8 @@ public class FGlobal : FFlareObject
 		"Debug";
 #elif FH_DEVELOPMENT
 		"Development";
+#elif FH_SHIPPING
+		"Shipping";
 #else
 		#error Unknown configuration
 #endif

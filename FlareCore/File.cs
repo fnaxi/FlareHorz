@@ -39,11 +39,13 @@ public class FFile : FFlareObject
 		FAssert.Check(HowManyTimes >= 1);
 		
 		// Get parent directory
-		DirectoryInfo? Info = new DirectoryInfo(InPath);
+		DirectoryInfo Info = new DirectoryInfo(InPath);
 		while (HowManyTimes != 0)
 		{
+			FAssert.Checkf(Info != null, "Path doesn't exist!");
+			
 			Info = Info.Parent;
-
+			
 			// If Info is null, the parent doesn't exist.
 			FAssert.Checkf(Info != null, "Can't get parent path!");
 

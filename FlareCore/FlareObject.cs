@@ -50,7 +50,7 @@ public class FFlareObject
 	/// <summary>
 	/// Create object of set type. Can be used only with FFlareObject derived classes.
 	/// </summary>
-	public static T CreateObject<T>(string Name) where T : FFlareObject, new()
+	protected static T CreateObject<T>(string Name) where T : FFlareObject, new()
 	{
 		T Instance = new T();
 		Instance.Initialize(Name);
@@ -60,7 +60,7 @@ public class FFlareObject
 	/// <summary>
 	/// Get name of this object.
 	/// </summary>
-	public string GetName()
+	protected string GetName()
 	{
 		return FlareName;
 	}
@@ -81,7 +81,7 @@ public class FFlareObject
 	/// <summary>
 	/// All objects of type FFlareObject.
 	/// </summary>
-	public static List<string> ObjectNames = new List<string>();
+	private static List<string> ObjectNames = new List<string>();
 
 	/// <summary>
 	/// Print all FFlareObject objects.

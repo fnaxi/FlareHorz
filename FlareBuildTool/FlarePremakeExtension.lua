@@ -21,23 +21,3 @@ premake.override(premake.vstudio.sln2005, "projects", function(base, wks)
 	end
 	base(wks)
 end)
-
-premake.api.register
-{
-	name = "build_rules",
-	scope = "workspace",
-	kind = "list:string"
-}
-premake.override(premake.vstudio.sln2005, "projects", function(base, wks)
-	if wks.build_rules and #wks.build_rules > 0 then
-		local build_rules_folder_GUID = "{2150E333-8FDC-42A3-9474-1A3956D46DE8}"
-		premake.push("Project(\"" .. build_rules_folder_GUID .. "\") = \"BuildRules\", \"BuildRules\", \"{" .. os.uuid("BuildRules:" .. wks.name) .. "}\"")
-		premake.push("ProjectSection(SolutionItems) = preProject")
-		for _, path in ipairs(wks.build_rules) do
-			premake.w(path .. " = " .. path)
-		end
-		premake.pop("EndProjectSection")
-		premake.pop("EndProject")
-	end
-	base(wks)
-end)

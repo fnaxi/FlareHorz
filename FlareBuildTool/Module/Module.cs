@@ -2,7 +2,7 @@
 
 using FlareCore;
 
-namespace FlareBuildTool.Target.Module;
+namespace FlareBuildTool.Module;
 
 /// <summary>
 /// Every target have bunch of modules in Source/ directory.
@@ -11,6 +11,27 @@ namespace FlareBuildTool.Target.Module;
 [FlareBuildToolAPI]
 public class FModule : FFlareObject
 {
+	/// <summary>
+	/// Calls when object of that class is created.
+	/// </summary>
+	protected override void OnObjectCreated()
+	{
+		base.OnObjectCreated(); 
+		
+		BuildCsFile = CreateObject<FFile>("BuildCsFile");
+		ModuleRules = CreateObject<FModuleRules>("ModuleRules");
+	}
+
+	/// <summary>
+	/// .Build.cs file of this module.
+	/// </summary>
+	public FFile BuildCsFile;
+
+	/// <summary>
+	/// Rules of this module.
+	/// </summary>
+	public FModuleRules ModuleRules;
+	
 	/// <summary>
 	/// Name of this module.
 	/// </summary>

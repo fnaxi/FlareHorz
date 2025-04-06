@@ -7,7 +7,7 @@ using FlareBuildTool.Target;
 /// <summary>
 /// Define rules for FlareCore target.
 /// </summary>
-[FlareBuildToolAPI]
+[BuildRulesAPI]
 class FFlareCoreTarget : FTargetRules
 {
 	/// <summary>

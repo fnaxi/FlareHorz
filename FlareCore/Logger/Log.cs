@@ -147,6 +147,29 @@ public abstract class FLog : FFlareObject
 		// Set console color back
 		Console.ForegroundColor = ConsoleColor.White;
 	}
+
+	/// <summary>
+	/// Log something to console and crash application.
+	/// </summary>
+	/// <param name="Text">Text to log.</param>
+	public static void FatalUninitializedLog(string Text)
+	{
+		// Set console color
+		Console.ForegroundColor = ConsoleColor.White;
+		
+		// Get current time
+		DateTime CurrentTime = DateTime.Now;
+		
+		// Wrap everything
+		string TimeFormatted = CurrentTime.ToString("HH:mm:ss");
+		string FormattedLogText = "> " + TimeFormatted + "> ERROR> " + Text;
+
+		// Log
+		Console.WriteLine(FormattedLogText);
+		
+		// Crash
+		Environment.Exit(1);
+	}
 	
 	/// <summary>
 	/// Wrappers for different log verbosities.

@@ -3,8 +3,10 @@
 using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Reflection;
-using FlareBuildTool.Target.Module;
+using FlareBuildTool.Module;
 using FlareCore;
 using FlareCore.Logger;
 using Microsoft.CSharp;
@@ -56,43 +58,20 @@ public sealed class FTarget : FFlareObject
 	{
 		FActionTime AT_Compiling = FActionTime.Start("AT_Compiling" + Name, ELogVerbosity.Info);
 		
-		// Info for compiling
-		CSharpCodeProvider CodeProvider = new CSharpCodeProvider();
-		CompilerParameters CompilerParams = new CompilerParameters();
+		// Get FTargetRules and save it into our field
+		Assembly CompiledAssembly = Assembly.LoadFrom("BuildRules.dll");
 		
-		// Setup links to have Flare Build Tool API available
-		CompilerParams.ReferencedAssemblies.Add(FGlobal.SolutionPath + @"\Binaries\" + FGlobal.Configuration + @"\FlareBuildTool.exe");
-		CompilerParams.ReferencedAssemblies.Add(FGlobal.SolutionPath + @"\Binaries\" + FGlobal.Configuration + @"\FlareCore.dll");
-
-		// Compile it
-		CompilerResults Result = CodeProvider.CompileAssemblyFromFile(CompilerParams, TargetCsFile.FilePath);
-		if (!Result.Errors.HasErrors)
-		{
-			FLog.Info("Successufuly compiled " + TargetCsFile.FileName);
-			
-			// Get FTargetRules and save it into our field
-			Assembly CompiledAssembly = Result.CompiledAssembly;
-			
-			Type RuntimeType = CompiledAssembly.GetType("F" + Name + "Target");
-			FAssert.Checkf(RuntimeType != null, "Can't find F" + Name + "Target class!");
-			FAssert.Checkf(RuntimeType.IsSubclassOf(typeof(FTargetRules)), "F" + Name + "Target should be parent to FTargetRules!");
-			
-			FTargetRules RuntimeTargetRules = (FTargetRules) Activator.CreateInstance(RuntimeType);
-			FAssert.Checkf(RuntimeTargetRules != null, "Failed to cast F" + Name + "Target to FTargetRules");
-			
-			RuntimeTargetRules.Initialize("F" + Name + "Target");
-			
-			// Set module rules from .Target.cs
-			TargetRules = RuntimeTargetRules;
-		}
-		else
-		{
-			FLog.Error("Errors occured while compiling " + TargetCsFile.FileName);
-			foreach (CompilerError CompilerCurrentError in Result.Errors)
-			{
-				FLog.Error("> " + CompilerCurrentError.ErrorText);
-			}
-		}
+		Type RuntimeType = CompiledAssembly.GetType("F" + Name + "Target");
+		FAssert.Checkf(RuntimeType != null, "Can't find F" + Name + "Target class!");
+		FAssert.Checkf(RuntimeType.IsSubclassOf(typeof(FTargetRules)), "F" + Name + "Target should be parent to FTargetRules!");
+		
+		FTargetRules RuntimeTargetRules = (FTargetRules) Activator.CreateInstance(RuntimeType);
+		FAssert.Checkf(RuntimeTargetRules != null, "Failed to cast F" + Name + "Target to FTargetRules");
+		
+		RuntimeTargetRules.Initialize(Name + "Target");
+		
+		// Set module rules from .Target.cs
+		TargetRules = RuntimeTargetRules;
 		
 		AT_Compiling.Stop();
 	}
@@ -102,7 +81,29 @@ public sealed class FTarget : FFlareObject
 	/// </summary>
 	public void HandleModules()
 	{
-		// TODO: Modules
+		if (TargetRules.TargetLanguage != ETargetLanguage.CPP) return;
+		
+		// Find all modules in the target
+		foreach (string ModulePath in Directory.GetDirectories(Path.GetDirectoryName(TargetCsFile.FilePath)))
+		{
+			string ModuleName = Path.GetFileNameWithoutExtension(ModulePath);
+			
+			FModule Module = CreateObject<FModule>(ModuleName + "Module");
+			Module.Name = ModuleName;
+
+			string BuildCsFileName = ModuleName + ".Build.cs";
+			string BuildCsFilePath = Path.Combine(ModulePath, BuildCsFileName);
+			FAssert.Checkf(File.Exists(BuildCsFilePath), "There's no " + BuildCsFileName + " file for " + ModuleName + " module!");
+			
+			Module.ModuleRules = CompileModuleFile(BuildCsFilePath, BuildCsFileName, ModuleName);
+			
+			Modules.Add(Module);
+		}
+
+		if (Modules.Count == 0)
+		{
+			FLog.Warn("There are no modules in a C++ target!");
+		}
 	}
 
 	/// <summary>
@@ -130,32 +131,39 @@ public sealed class FTarget : FFlareObject
 		{
 			FLog.Debug("HTCmd: " + TargetRules.HeaderToolRunCommand);
 		}
-		foreach (string FilePath in TargetRules.Files)
-		{
-			FLog.Debug("FilePaths: " + FilePath);
-		}
-		foreach (string Define in TargetRules.Defines)
-		{
-			FLog.Debug("Define: " + Define);
-		}
-		foreach (string Link in TargetRules.Links)
-		{
-			FLog.Debug("Link: " + Link);
-		}
-		foreach (string LinkedTarget in TargetRules.LinkTargets)
-		{
-			FLog.Debug("LinkedTarget: " + LinkedTarget);
-		}
-		foreach (string IncludeDirectory in TargetRules.IncludeDirectories)
-		{
-			FLog.Debug("IncludeDirectory: " + IncludeDirectory);
-		}
-		foreach (string LibraryDirectory in TargetRules.LibraryDirectories)
-		{
-			FLog.Debug("LibraryDirectory: " + LibraryDirectory);
-		}
+		foreach (string FilePath in TargetRules.Files) { FLog.Debug("FilePaths: " + FilePath); }
+		foreach (string Define in TargetRules.Defines) { FLog.Debug("Define: " + Define); }
+		foreach (string Link in TargetRules.Links) { FLog.Debug("Link: " + Link); }
+		foreach (string LinkedTarget in TargetRules.LinkTargets) { FLog.Debug("LinkedTarget: " + LinkedTarget); }
+		foreach (string IncludeDirectory in TargetRules.IncludeDirectories) { FLog.Debug("IncludeDirectory: " + IncludeDirectory); }
+		foreach (string LibraryDirectory in TargetRules.LibraryDirectories) { FLog.Debug("LibraryDirectory: " + LibraryDirectory); }
 		// TODO: Print modules info
 		// TODO: print configuration rules info
 		FLog.Debug("==================== END ====================");
+	}
+
+	/// <summary>
+	/// Compile .Build.cs file for module.
+	/// </summary>
+	private FModuleRules CompileModuleFile(string InFilePath, string InFileName, string ModuleName)
+	{
+		FActionTime AT_Compiling = FActionTime.Start("AT_Compiling" + Name + "-" + ModuleName, ELogVerbosity.Info);
+		
+		// Getting FModuleRules
+		Assembly CompiledAssembly = Assembly.LoadFrom("BuildRules.dll");
+		
+		Type RuntimeType = CompiledAssembly.GetType("F" + Name + ModuleName + "Module");
+		FAssert.Checkf(RuntimeType != null, "Can't find F" + Name + ModuleName + "Module class!");
+		FAssert.Checkf(RuntimeType.IsSubclassOf(typeof(FModuleRules)), "F" + Name + ModuleName + "Module should be parent to FModuleRules!");
+			
+		FModuleRules RuntimeModuleRules = (FModuleRules) Activator.CreateInstance(RuntimeType);
+		FAssert.Checkf(RuntimeModuleRules != null, "Failed to cast F" + Name + ModuleName + "Module to FModuleRules");
+			
+		RuntimeModuleRules.Initialize(Name + ModuleName + "Module");
+		
+		AT_Compiling.Stop();
+		
+		// Set module rules from .Target.cs
+		return RuntimeModuleRules;
 	}
 }

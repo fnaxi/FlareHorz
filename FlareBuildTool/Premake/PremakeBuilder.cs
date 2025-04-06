@@ -38,7 +38,6 @@ public class FPremakeBuilder : FFlareObject
 	/// Execute a command or executable.
 	/// </summary>
 	/// <param name="InCommand">Command to execute</param>
-	/// <param name="InCommand">What log verbosity use for logging execution time. Disabled by default</param>
 	public void ExecuteCommand(string InCommand, ELogVerbosity InLogVerbosity = ELogVerbosity.Info, ELogVerbosity ActionLogVerbosity = ELogVerbosity.NoLogging)
 	{
 		FAssert.Check(InCommand != "");

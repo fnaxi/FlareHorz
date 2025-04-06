@@ -7,7 +7,7 @@ using FlareBuildTool.Target;
 /// <summary>
 /// Define rules for FlareBuildTool target.
 /// </summary>
-[FlareBuildToolAPI]
+[BuildRulesAPI]
 class FFlareBuildToolTarget : FTargetRules
 {
 	/// <summary>
@@ -19,7 +19,7 @@ class FFlareBuildToolTarget : FTargetRules
 
 		TargetType = ETargetType.Executable;
 		TargetLanguage = ETargetLanguage.CS;
-		bStartupTarget = true;
+		bStartupTarget = false;
 		
 		Links.AddRange(new string[]
 		{

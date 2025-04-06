@@ -41,7 +41,7 @@ public class FPremakeAPI : FFlareObject
 
 	public void TargetType(ETargetType TargetType)
 	{
-		string StrType = "UNKNOWN_TYPE";
+		string StrType = "UNKNOWN";
 		switch (TargetType)
 		{
 			case ETargetType.Executable:
@@ -77,7 +77,7 @@ public class FPremakeAPI : FFlareObject
 	
 	public void CS_Version(float Version) { Param("csversion", Version.ToString()); }
 	
-	public void CPP_Version(int Version) { Param("cppdialect", "C++" + Version.ToString()); }
+	public void CPP_Version(int Version) { Param("cppdialect", "C++" + Version); }
 
 	public void DotNetFrameworkVersion(float Version) { Param("dotnetframework", Version.ToString()); }
 	
@@ -86,6 +86,8 @@ public class FPremakeAPI : FFlareObject
 	public void IntermediatePath(string Path) { Constructor("objdir", Path); }
 	
 	public void Exlude(string Name) { WksParam("excludes", Name); }
+	
+	public void FileName(string Name) { Param("filename", Name); }
 	
 	public void Filter(string Name) { Param("filter", Name); }
 

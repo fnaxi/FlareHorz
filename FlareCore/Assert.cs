@@ -50,8 +50,8 @@ public class FAssert : FFlareObject
 		StackFrame StackInstance = new StackFrame(3, true); // Skip LogAssertInfo(), Assert() and Verify()/Check()/etc.
 		
 		// Get info
-		MethodBase? EpxrMethod = StackInstance.GetMethod();
-		string? ExprFileName = StackInstance.GetFileName();
+		MethodBase EpxrMethod = StackInstance.GetMethod();
+		string ExprFileName = StackInstance.GetFileName();
 		int EpxrLineNumber = StackInstance.GetFileLineNumber();
 		
 		// Log everything
