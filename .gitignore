@@ -22,5 +22,6 @@ Binaries/
 Intermediate/
 
 # Logs
-**/Logs/
+Saved/**/Logs/
+Saved/Logs/
 *.fhlog
