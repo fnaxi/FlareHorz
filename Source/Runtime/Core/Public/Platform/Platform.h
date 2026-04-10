@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include "Misc/PreprocessorHelpers.h"
+
 #ifndef PLATFORM_WINDOWS
 	#define PLATFORM_WINDOWS 0
 #endif
@@ -22,6 +24,8 @@
 #if !PLATFORM_64BITS
 	#error FlareHorz only supports 64-bit platforms!
 #endif
+
+#include FH_PLATFORM_HEADER(PlatformMemory.h)
 
 // If we don't have a platform-specific define for the TEXT macro, define it now
 #if !defined(TEXT)
@@ -60,7 +64,7 @@ typedef SPlatformTypes::SSIZE_T		SSIZE_T;
 /*----------------------------------------------------------------------------
 	Test the global types
 ----------------------------------------------------------------------------*/
-namespace FH::Core::TypeTests
+namespace FH::Core::Private
 {
 	template <typename A, typename B>
 	inline constexpr bool TAreTypesEqual_V = false;
@@ -79,7 +83,8 @@ namespace FH::Core::TypeTests
 	static_assert(char(-1) < char(0), "Unsigned char type test failed!");
 
 	static_assert((!TAreTypesEqual_V<ANSICHAR, WIDECHAR>), "ANSICHAR and WIDECHAR should be different types!");
-	static_assert(TAreTypesEqual_V<TCHAR, ANSICHAR> || TAreTypesEqual_V<TCHAR, WIDECHAR> || TAreTypesEqual_V<TCHAR, UTF8CHAR>, "TCHAR should either be ANSICHAR, WIDECHAR or UTF8CHAR!");
+	static_assert(TAreTypesEqual_V<TCHAR, ANSICHAR> || TAreTypesEqual_V<TCHAR, WIDECHAR> || TAreTypesEqual_V<TCHAR, UTF8CHAR>,
+		"TCHAR should either be ANSICHAR, WIDECHAR or UTF8CHAR!");
 	
 	static_assert(TAreTypesEqual_V<WIDECHAR, wchar_t>, "WIDECHAR should be wchar_t");
 

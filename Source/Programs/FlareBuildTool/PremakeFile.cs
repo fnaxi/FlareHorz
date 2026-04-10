@@ -52,9 +52,9 @@ public class CProjectInfo
  */
 public class CPremakeFileHandle : CFileHandle
 {
-	/////////////////////////////////////////////////////////////////
-	// PUBLIC API
-	/////////////////////////////////////////////////////////////////
+	/*----------------------------------------------------------------------------
+		PUBLIC API
+	----------------------------------------------------------------------------*/
 	
 	public void WriteCopyright()
 	{
@@ -234,9 +234,9 @@ public class CPremakeFileHandle : CFileHandle
 	public void WriteExcludes(List<string> Files) { _WriteList("excludes", Files); }
 	public void WriteTargetName(string Name) { _WriteParam("targetname", Name); }
 	
-	/////////////////////////////////////////////////////////////////
-	// PRIVATE API
-	/////////////////////////////////////////////////////////////////
+	/*----------------------------------------------------------------------------
+		PRIVATE API
+	----------------------------------------------------------------------------*/
 	
 	private void _WriteParam(string Name, string Value)
 	{

@@ -24,6 +24,12 @@
 #define DLLEXPORT				__declspec(dllexport)
 #define DLLIMPORT				__declspec(dllimport)
 
+#ifdef _UNICODE
+	#define PLATFORM_UNICODE	1
+#else
+	#define PLATFORM_UNICODE	0
+#endif
+
 /**
  * Windows specific types.
  */
@@ -78,8 +84,12 @@ struct SWindowsPlatformTypes
 	 * A switchable character. In-memory only.
 	 * Either ANSICHAR or WIDECHAR, depending on a licensee's requirements.
 	 */
+#if PLATFORM_UNICODE
 	typedef WIDECHAR			TCHAR;
-
+#else
+	typedef ANSICHAR			TCHAR; // TODO: This will not work approximately
+#endif
+	
 	/**
 	 * An 8-bit character type. In-memory only. 8-bit representation.
 	 * Should really be char8_t but making this the generic option is easier for compilers which don't fully support C++20 yet.

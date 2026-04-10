@@ -15,7 +15,7 @@ public class CBuildRules : CProgramRules
 	{
 		OutputType = EBuildOutputType.DynamicLibrary;
 		
-		Dependencies.Add($"{FlareCoreAssembly.GetName().Name}.dll");
+		Dependencies.Add($"{CoreAssembly.GetName().Name}.dll");
 		Dependencies.Add($"{TargetAssembly.GetName().Name}.exe");
 	}
 }

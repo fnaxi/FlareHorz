@@ -139,7 +139,7 @@ public class CModule : CBuildItem
 		
 		foreach (string OtherModuleName in Rules.PublicDependencyModules)
 		{
-			CModule OtherModule = GetModuleByName(OtherModuleName, Modules);
+			CModule OtherModule = FindModuleByName(OtherModuleName, Modules);
 			Verify(!OtherModule.Rules.bStartup, "Can't have startup module as a dependency!");
 			
 			foreach (string IncludeDirectory in OtherModule.Rules.PublicIncludeDirectories
@@ -154,7 +154,7 @@ public class CModule : CBuildItem
 		}
 		foreach (string OtherModuleName in Rules.PrivateDependencyModules)
 		{
-			CModule OtherModule = GetModuleByName(OtherModuleName, Modules);
+			CModule OtherModule = FindModuleByName(OtherModuleName, Modules);
 			foreach (string IncludeDirectory in OtherModule.Rules.PublicIncludeDirectories
 				         .Where(IncludeDirectory => !Rules.GetIncludeDirectories().Contains(IncludeDirectory)))
 			{
@@ -181,14 +181,16 @@ public class CModule : CBuildItem
 			CPath.FlareCombine(BinariesPath, $"{TargetAssembly.GetName().Name}.exe")
 		});
 		
-		// NOTE: In other modules this macro is defined as DllImport
 		if (!Rules.bStartup)
 		{
+			// NOTE: In other modules this macro is defined as DllImport
 			Rules.PrivateDefines.Add($"{Name.ToUpper()}_API={DllExport}");
 		}
 
 		Rules.PrivateDefines.AddRange(new[]
 		{
+			"NO_API=",
+			
 			// Used in IMPLEMENT_MODULE() macro to check that passed name is correct
 			$"FH_MODULE_NAME={Name}",
 			
@@ -198,7 +200,7 @@ public class CModule : CBuildItem
 		});
 	}
 	
-	private static CModule GetModuleByName(string InName, in List<CModule> Modules)
+	private static CModule FindModuleByName(string InName, in List<CModule> Modules)
 	{
 		CModule Module = Modules.Find(m => m.Name == InName);
 		Verify(Module != null, $"Could not find Module: {InName}");

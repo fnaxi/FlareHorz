@@ -11,7 +11,7 @@ goto Exit
 
 :Error_ScriptFailure
 echo.
-echo FlareBuildTool exited with code %errorlevel%!
+echo GenerateProjectFiles.bat exited with code %errorlevel%!
 echo.
 goto Exit
 

@@ -51,7 +51,7 @@ Open FlareHorz.sln and build all the projects.
 
 - `C` - for classes.
 - `S` - for structs.
-- `E` - for enumerators.
+- `E` - for enums and enum classes.
 - `I` - for interfaces.
 - `T` - for template types and params.
 - `U` - for `using` types.

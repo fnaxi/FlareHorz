@@ -183,7 +183,7 @@ public:
 		// Shift elements to the left
 		for (UArraySizeType i = Index; i < ArrayNum - 1; ++i)
 		{
-			Data[i] = std::move(Data[i + 1]);
+			Data[i] = CMemoryManager::Move(Data[i + 1]);
 		}
 		
 		--ArrayNum;		
@@ -358,7 +358,8 @@ public:
 	}
 	
 	/** Returns a typed pointer to the first array entry. */
-	[[nodiscard]] FORCEINLINE TElementType* GetData() const { return Data; }
+	[[nodiscard]] FORCEINLINE TElementType* GetData() { return Data; }
+	[[nodiscard]] FORCEINLINE const TElementType* GetData() const { return Data; }
 	
 private:
 	TElementType* Data;
@@ -373,10 +374,10 @@ private:
 	{
 		if (NewSize == ArrayMax) return;
 		
-		TElementType* NewData = new TElementType[NewSize];
+		TElementType* NewData = new TElementType[NewSize]; // TODO: Allocators
 		for (UArraySizeType i = 0; i < ArrayNum; i++)
 		{
-			NewData[i] = std::move(Data[i]);
+			NewData[i] = CMemoryManager::Move(Data[i]);
 		}
 		
 		delete[] Data;
@@ -403,14 +404,18 @@ private:
 	}
 
 public:
-	/*----------------------------------------------------------------------------
-		Operators
-	----------------------------------------------------------------------------*/
-
+	/**
+	 * DO NOT USE DIRECTLY!
+	 * STL-like iterators to enable range-based for loop support.
+	 */
 	TElementType*		begin()			{ return GetData(); }
 	TElementType*		end()			{ return GetData() + ArrayNum; }
 	const TElementType* begin() const	{ return GetData(); }
 	const TElementType* end() const		{ return GetData() + ArrayNum; }
+	
+	/*----------------------------------------------------------------------------
+		Operators
+	----------------------------------------------------------------------------*/
 	
 	TArray& operator=(const TArray& Other)
 	{

@@ -3,6 +3,15 @@
 
 #include "Containers/FlareString.h"
 
+SIZE_T CStringHelpers::StrLen(const TCHAR* Str)
+{
+#if PLATFORM_UNICODE
+	return std::wcslen(Str);
+#else
+	return std::strlen(Str);
+#endif
+}
+
 CString::CString()
 {
 	Data = TArray<UElementType>( { NULL_TERMINATOR } );
@@ -14,7 +23,7 @@ CString::CString(const UElementType* Str)
 	const UArraySizeType Num = static_cast<UArraySizeType>(Lenght);
 
 	Data.SetNum(Num + 1);
-		
+	
 	for (UArraySizeType i = 0; i < Num; ++i)
 	{
 		Data[i] = Str[i];

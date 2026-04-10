@@ -14,7 +14,7 @@ namespace FlareCore;
 public static class CGlobal
 {
 	public static Assembly TargetAssembly;
-	public static Assembly FlareCoreAssembly;
+	public static Assembly CoreAssembly;
 
 	public const string CopyRightNotice = "CopyRight FlareHorz Team. All Rights Reserved.";
 	

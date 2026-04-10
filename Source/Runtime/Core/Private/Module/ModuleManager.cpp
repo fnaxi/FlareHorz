@@ -1,30 +1,24 @@
 // CopyRight FlareHorz Team. All Rights Reserved.
 
 
-#include <algorithm>
-
 #include "Module/ModuleManager.h"
 
-int32 CModuleManager::CModuleInfo::CurrentLoadOrder = 1;
+DEFINE_LOG_CATEGORY_STATIC(LogModuleManager, All)
 
-CModuleManager& CModuleManager::Get()
-{
-	static CModuleManager Singleton = CModuleManager(SPrivateToken{});
-	return Singleton;
-}
+int32 CModuleManager::CModuleInfo::CurrentLoadOrder = 1;
 
 IModuleInterface* CModuleManager::LoadModule(const CString& InModuleName)
 {
 	TSharedPtr<CModuleInfo> ModuleInfo = FindModule(InModuleName);
 	if (!ModuleInfo)
 	{
-		FH_LOG(TEXT("Module %s is not registered!"), *InModuleName)
+		FH_LOG(LogModuleManager, Error, TEXT("Module %s is not registered!"), *InModuleName)
 		return nullptr;
 	}
 
 	if (ModuleInfo->bWasUnloadedAtShutdown)
 	{
-		FH_LOG(TEXT("Module %s was unloaded at shutdown!"), *InModuleName)
+		FH_LOG(LogModuleManager, Error, TEXT("Module %s was unloaded at shutdown!"), *InModuleName)
 		return nullptr;
 	}
 
@@ -37,7 +31,7 @@ IModuleInterface* CModuleManager::LoadModule(const CString& InModuleName)
 	}
 	else
 	{
-		FH_LOG(TEXT("Loaded %s module"), *InModuleName)
+		FH_LOG(LogModuleManager, Log, TEXT("Loaded %s module"), *InModuleName)
 		
 		Interface->StartupModule();
 		ModuleInfo->bIsReady = true;
@@ -57,7 +51,7 @@ IModuleInterface* CModuleManager::GetModule(const CString& InModuleName)
 	TSharedPtr<CModuleInfo> ModuleInfo = FindModule(InModuleName);
 	if (!ModuleInfo || !ModuleInfo->bIsReady)
 	{
-		FH_LOG(TEXT("Module %s is not loaded!"), *InModuleName)
+		FH_LOG(LogModuleManager, Error, TEXT("Module %s is not loaded!"), *InModuleName)
 		return nullptr;
 	}
 	
@@ -100,7 +94,7 @@ void CModuleManager::UnloadModule(const CString& InModuleName)
 	TSharedPtr<CModuleInfo> ModuleInfo = FindModule(InModuleName);
 	if (!ModuleInfo || !ModuleInfo->bIsReady)
 	{
-		FH_LOG(TEXT("Module %s is already unloaded!"), *InModuleName)
+		FH_LOG(LogModuleManager, Warning, TEXT("Module %s is already unloaded!"), *InModuleName)
 		return;
 	}
 
@@ -108,7 +102,7 @@ void CModuleManager::UnloadModule(const CString& InModuleName)
 	ModuleInfo->Interface->ShutdownModule();
 	ModuleInfo.PTR_Reset();
 
-	FH_LOG(TEXT("Unloaded %s module"), *InModuleName)
+	FH_LOG(LogModuleManager, Log, TEXT("Unloaded %s module"), *InModuleName)
 }
 
 bool CModuleManager::IsModuleLoaded(const CString& InModuleName) const
@@ -121,7 +115,7 @@ int32 CModuleManager::GetModuleCount() const
 	return Modules.Num();
 }
 
-void CModuleManager::AddModule_Internal(const TCHAR* InModuleName, const UModuleInitializer& ModuleInitializer)
+void CModuleManager::RegisterModule_Internal(const TCHAR* InModuleName, const UModuleInitializer& ModuleInitializer)
 {
 	if (Modules.Contains(InModuleName)) return;
 
@@ -132,7 +126,7 @@ void CModuleManager::AddModule_Internal(const TCHAR* InModuleName, const UModule
 	}
 	else
 	{
-		FH_LOG(TEXT("The module %s was not constructed properly!"), InModuleName)
+		FH_LOG(LogModuleManager, Error, TEXT("The module %s was not constructed properly!"), InModuleName)
 	}
 }
 

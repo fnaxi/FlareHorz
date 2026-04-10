@@ -11,4 +11,4 @@
 
 #include "Templates/SmartPointers.h"
 
-#include "Logging/LogMacros.h"
+#include "Logging/Logger.h"

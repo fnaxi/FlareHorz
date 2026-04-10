@@ -76,8 +76,8 @@ public class CApplication
 	/** Initializes the application by processing command-line arguments, setting up the necessary paths, and initializing logger. */
 	private void Initialize(string[] InArguments, Assembly InTargetAssembly)
 	{
-		FlareCoreAssembly = Assembly.GetExecutingAssembly();
-		Verify(FlareCoreAssembly != null, "FlareCore assembly is null!");
+		CoreAssembly = Assembly.GetExecutingAssembly();
+		Verify(CoreAssembly != null, "FlareCore assembly is null!");
 		
 		TargetAssembly = InTargetAssembly;
 		Verify(TargetAssembly != null, "Target assembly is null!");

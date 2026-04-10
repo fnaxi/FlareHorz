@@ -2,9 +2,6 @@
 
 #pragma once
 
-#include <cstring>
-#include <cwchar>
-
 #include "Array.h"
 
 // TODO: CName and CText
@@ -12,15 +9,7 @@
 class CStringHelpers
 {
 public:
-	static size_t StrLen(const char* Str)
-	{
-		return std::strlen(Str);
-	}
-
-	static size_t StrLen(const wchar_t* Str)
-	{
-		return std::wcslen(Str);
-	}
+	static SIZE_T StrLen(const TCHAR* Str);
 };
 
 /**
@@ -43,8 +32,14 @@ public:
 	
 	/** Get the length of the string, excluding terminating character. */
 	[[nodiscard]] UArraySizeType Length() const;
+
+	// TODO: operator+ and Printf()
 	
 	/** Get pointer to the string. */
+	[[nodiscard]] FORCEINLINE UElementType* CStr()
+	{
+		return Data.GetData();
+	}
 	[[nodiscard]] FORCEINLINE const UElementType* CStr() const
 	{
 		return Data.GetData();
@@ -65,5 +60,4 @@ public:
 	const UElementType& operator[](UArraySizeType Index) const;
 
 	bool operator==(const CString& Other) const;
-	
 };

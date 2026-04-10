@@ -65,7 +65,6 @@ public:
 	 *
 	 * @param Key The key to associate the value with.
 	 * @param Value The value to associate with the key.
-	 * @return A reference to the value as stored in the map. The reference is only valid until the next change to any key in the map.
 	 */
 	void Add(const TKeyType& Key, const TValueType& Value)
 	{
@@ -87,7 +86,7 @@ public:
 		{
 			if (Pairs[i].Key == Key)
 			{
-				Pairs.RemoveAt(i);
+				RemoveAt(i);
 			}
 			else
 			{
