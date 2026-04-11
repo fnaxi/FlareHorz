@@ -28,11 +28,7 @@ int32 CLogger::Printf(const TCHAR* Format, ...)
 	va_list Args;
 	va_start(Args, Format);
 
-#if PLATFORM_UNICODE
-	int32 Result = vwprintf(Format, Args);
-#else
-	int32 Result = vprintf(Format, Args);
-#endif
+	int32 Result = Printf_V(Format, Args);
 
 	va_end(Args);
 	return Result;
@@ -40,9 +36,5 @@ int32 CLogger::Printf(const TCHAR* Format, ...)
 
 int32 CLogger::Printf_V(const TCHAR* Format, va_list Args)
 {
-#if PLATFORM_UNICODE
 	return vwprintf(Format, Args);
-#else
-	return vprintf(Format, Args);
-#endif
 }

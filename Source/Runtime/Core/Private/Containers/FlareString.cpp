@@ -5,11 +5,7 @@
 
 SIZE_T CStringHelpers::StrLen(const TCHAR* Str)
 {
-#if PLATFORM_UNICODE
 	return std::wcslen(Str);
-#else
-	return std::strlen(Str);
-#endif
 }
 
 CString::CString()
