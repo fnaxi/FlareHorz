@@ -28,6 +28,7 @@ public class CFlareBuildTool : CApplication
 			foreach (string GroupPath in Directory.GetDirectories(BuildRulesPath).Where(s => !s.EndsWith("Programs")))
 			{
 				Verify(Enum.TryParse(Path.GetFileName(GroupPath), false, out EModuleType ModuleType));
+				Verify(ModuleType != EModuleType.Invalid);
 
 				foreach (string ScriptFilePath in Directory.GetFiles(GroupPath))
 				{

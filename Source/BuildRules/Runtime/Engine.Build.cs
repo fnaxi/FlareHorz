@@ -12,7 +12,8 @@ public class CEngine : CModuleRules
 		PublicDependencyModules.AddRange(new []
 		{
 			"Core",
-			"SDL"
+			"SDL",
+			"ImGui"
 		});
 	}
 }

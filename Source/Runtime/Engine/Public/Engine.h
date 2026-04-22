@@ -29,6 +29,7 @@ private:
 	bool bRequestingExit = false;
 
 	void Render();
+	void RenderImGui();
 };
 
 /** Global engine pointer. Can be nullptr so don't use without checking. */

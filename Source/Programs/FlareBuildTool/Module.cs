@@ -171,7 +171,7 @@ public class CModule : CBuildItem
 		List<CModule> Modules = Others.Values.OfType<CModule>().ToList();
 		Dictionary<string, CModule> ModuleMap = Modules.ToDictionary(m => m.Name, m => m);
 		
-		foreach (CModule OtherModule in Modules.Where(m => m != this && !m.Rules.bStartup && !ModuleIsThirdPartyWithNoOutput(m)))
+		foreach (CModule OtherModule in Modules.Where(m => m != this && !m.Rules.bStartup && !m.IsThirdPartyWithNoOutput() && !m.IsThirdPartyStaticLib()))
 		{
 			// TODO: Add API macro only for modules that are linked
 			
@@ -248,19 +248,19 @@ public class CModule : CBuildItem
 		}
 		
 		// TODO: Revisit this. Dependencies are only half implemented
-		Links.AddRange( GatherDependenciesBFS(this, ModuleMap) );
+		Links.AddRange( GatherDependencies_BFS(ModuleMap) );
 		
 		CLog.Info($"SetupRules() completed for {Name} module");
 	}
 	
-	// TODO: static can be removed so RootModule will be this
-	private static List<string> GatherDependenciesBFS(CModule RootModule, Dictionary<string, CModule> AllModules)
+	/** Gather dependencies for this module using BFS (Breadth-First Search) algorithm. */
+	private List<string> GatherDependencies_BFS(Dictionary<string, CModule> AllModules)
 	{
 		List<string> Dependencies = new();
 		HashSet<string> Visited = new();
 		
 		Queue<CModule> Queue = new();
-		Queue.Enqueue(RootModule);
+		Queue.Enqueue(this);
 
 		while (Queue.Count > 0)
 		{
@@ -276,17 +276,17 @@ public class CModule : CBuildItem
 
 				Visited.Add(DepName);
 
-				if (!ModuleIsThirdPartyWithNoOutput(DepModule))
+				if (!DepModule.IsThirdPartyWithNoOutput())
 				{
 					Dependencies.Add(DepModule.Name);
-					CLog.Verbose($"{RootModule.Name} module: Added {DepName} module dependency");
+					CLog.Verbose($"{Name} module: Added {DepName} module dependency");
 				}
 				else
 				{
 					Dependencies.AddRange(DepModule.Rules.PublicDependencyLibraries);
 					foreach (string LibName in DepModule.Rules.PublicDependencyLibraries)
 					{
-						CLog.Verbose($"{RootModule.Name} module: Added {LibName} library dependency");
+						CLog.Verbose($"{Name} module: Added {LibName} library dependency");
 					}
 				}
 
@@ -305,9 +305,14 @@ public class CModule : CBuildItem
 
 		return Module;
 	}
-
-	private static bool ModuleIsThirdPartyWithNoOutput(CModule Module)
+	
+	private bool IsThirdPartyWithNoOutput()
 	{
-		return Module.ModuleType == EModuleType.ThirdParty && Module.Rules is CThirdPartyModuleRules { OutputType: EBuildOutputType.None };
+		return ModuleType == EModuleType.ThirdParty && Rules is CThirdPartyModuleRules { OutputType: EBuildOutputType.None };
+	}
+	
+	private bool IsThirdPartyStaticLib()
+	{
+		return ModuleType == EModuleType.ThirdParty && Rules is CThirdPartyModuleRules { OutputType: EBuildOutputType.StaticLibrary };
 	}
 }
