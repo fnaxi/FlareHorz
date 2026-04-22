@@ -25,22 +25,37 @@ class CORE_API CString
 	using UElementType = TCHAR;
 	
 public:
-	CString();
+	CString()
+	{
+		Data = TArray<UElementType>( { NULL_TERMINATOR } );
+	}
+	CString(const UElementType* Str)
+	{
+		const SIZE_T Lenght = CStringHelpers::StrLen(Str);
+		const UArraySizeType Num = static_cast<UArraySizeType>(Lenght);
+
+		Data.SetCount(Num + 1);
 	
-	// ReSharper disable once CppNonExplicitConvertingConstructor
-	CString(const UElementType* Str);
+		for (UArraySizeType i = 0; i < Num; ++i)
+		{
+			Data[i] = Str[i];
+		}
+		Data[Num] = NULL_TERMINATOR;
+	}
 	
 	/** Get the length of the string, excluding terminating character. */
-	[[nodiscard]] UArraySizeType Length() const;
+	[[nodiscard]] UArraySizeType Length() const
+	{
+		return Data.Count() > 0 ? Data.Count() - 1 : 0;
+	}
 
-	// TODO: operator+ and Printf()
+	// TODO: Printf()
 	
-	/** Get pointer to the string. */
-	[[nodiscard]] FORCEINLINE UElementType* CStr()
+	[[nodiscard]] FORCEINLINE UElementType* Get()
 	{
 		return Data.GetData();
 	}
-	[[nodiscard]] FORCEINLINE const UElementType* CStr() const
+	[[nodiscard]] FORCEINLINE const UElementType* Get() const
 	{
 		return Data.GetData();
 	}
@@ -54,10 +69,35 @@ public:
 		Operators
 	----------------------------------------------------------------------------*/
 
-	const UElementType* operator*() const;
+	const UElementType* operator*() const
+	{
+		return Get();
+	}
 	
-	UElementType& operator[](UArraySizeType Index);
-	const UElementType& operator[](UArraySizeType Index) const;
+	UElementType& operator[](UArraySizeType Index)
+	{
+		return Data[Index];
+	}
+	const UElementType& operator[](UArraySizeType Index) const
+	{
+		return Data[Index];
+	}
 
-	bool operator==(const CString& Other) const;
+	bool operator==(const CString& Other) const
+	{
+		if (Length() != Other.Length())
+		{
+			return false;
+		}
+
+		for (UArraySizeType i = 0; i < Length(); ++i)
+		{
+			if (Data[i] != Other.Data[i])
+			{
+				return false;
+			}
+		}
+	
+		return true;
+	}
 };

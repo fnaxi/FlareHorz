@@ -9,7 +9,7 @@ namespace FlareBuildTool;
 /**
  * Specifies the programming language.
  */
-public enum ETargetLanguage
+public enum ELanguage
 {
 	/** Target is implemented in C++. */
 	Cxx,
@@ -32,7 +32,7 @@ public class CProjectInfo
 	public string BinariesPath;
 	public string IntermediatePath;
 	public EBuildOutputType OutputType;
-	public ETargetLanguage Language;
+	public ELanguage Language;
 	public List<string> FileDirectories = new();
 	public List<string> ExcludeFileDirectories = new();
 	public List<string> Links = new();
@@ -71,6 +71,9 @@ public class CPremakeFileHandle : CFileHandle
 		string KindText = string.Empty;
 		switch (Kind)
 		{
+			case EBuildOutputType.None:
+				KindText = "None";
+				break;
 			case EBuildOutputType.Executable:
 				KindText = "ConsoleApp";
 				break;
@@ -80,22 +83,19 @@ public class CPremakeFileHandle : CFileHandle
 			case EBuildOutputType.StaticLibrary:
 				KindText = "StaticLib";
 				break;
-			default:
-				CheckNoEntry("Forgot to set OutputType in '.Build.cs' file!");
-				break;
 		}
 		_WriteParam("kind", KindText);
 	}
 
-	public void WriteLanguage(ETargetLanguage Language)
+	public void WriteLanguage(ELanguage Language)
 	{
 		string LanguageText = string.Empty;
 		switch (Language)
 		{
-			case ETargetLanguage.CSharp:
+			case ELanguage.CSharp:
 				LanguageText = "C#";
 				break;
-			case ETargetLanguage.Cxx:
+			case ELanguage.Cxx:
 				LanguageText = "C++";
 				break;
 			default:
@@ -116,10 +116,10 @@ public class CPremakeFileHandle : CFileHandle
 		WriteLanguage(ProjectInfo.Language);
 		switch (ProjectInfo.Language)
 		{
-			case ETargetLanguage.Cxx:
+			case ELanguage.Cxx:
 				WriteCxxVersion(CxxVersion);
 				break;
-			case ETargetLanguage.CSharp:
+			case ELanguage.CSharp:
 				WriteCSharpVersion(CSharpVersion);
 				WriteDotNetFrameworkVersion(DotNetFrameworkVersion);
 				break;
@@ -147,8 +147,26 @@ public class CPremakeFileHandle : CFileHandle
 		ProjectInfo.CustomCode();
 		
 		WriteConfigurationFilter("Debug");
+		{
+			WriteRuntime(ERuntimeType.Debug);
+			WriteSymbolsOn();
+		}
+		
+		// TODO: DebugGame
+		
 		WriteConfigurationFilter("Development");
+		{
+			WriteRuntime(ERuntimeType.Release);
+			WriteOptimizeOn();
+		}
+		
+		// TODO: Test
+		
 		WriteConfigurationFilter("Shipping");
+		{
+			WriteRuntime(ERuntimeType.Release);
+			WriteOptimizeOn();
+		}
 		
 		WriteFilter("system", "windows");
 		{
@@ -206,7 +224,13 @@ public class CPremakeFileHandle : CFileHandle
 	public void WriteArchitecture(string Architectures) { _WriteParam("architecture", Architectures); }
 	public void WriteGroupBegin(string Name) { _WriteParam("group", Name); }
 	public void WriteGroupEnd() { _WriteParam("group", ""); }
-	public void WriteProject(string Name) { _WriteParam("project", Name); }
+
+	public void WriteProject(string Name)
+	{
+		_WriteComment("==========================================================================");
+		_WriteParam("project", Name);
+		_WriteComment("==========================================================================");
+	}
 	public void WriteLocation(string Name) { _WriteParam("location", Name); }
 	public void WriteCxxVersion(Int32 Version) { _WriteParam("cppdialect", $"C++{Version.ToString()}"); }
 	public void WriteCSharpVersion(float Version) { _WriteParam("csversion", $"{Version.ToString()}"); }

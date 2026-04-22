@@ -47,3 +47,33 @@
 	inline constexpr	Enum	operator^ (Enum  Lhs, Enum Rhs)	{ return (Enum)((__underlying_type(Enum))Lhs ^ (__underlying_type(Enum))Rhs); } \
 	inline constexpr	bool	operator! (Enum  E)				{ return !(__underlying_type(Enum))E; } \
 	inline constexpr	Enum	operator~ (Enum  E)				{ return (Enum)~(__underlying_type(Enum))E; }
+
+#define IMPLEMENT_ENTRY_POINT() \
+	int32 tchar_main(TCHAR* ArgV[]) { return GuardedMain(*ArgV); } \
+	/*int32 main(int32 ArgC, ANSICHAR* UTF8ArgV[]) \
+	{ \
+		WIDECHAR** ArgV = new TCHAR*[ArgC]; \
+		for (int32 i = 0; i < ArgC; ++i) \
+		{ \
+			SIZE_T Length = strlen(UTF8ArgV[i]) + 1; \
+			ArgV[i] = new WIDECHAR[Length]; \
+			SIZE_T ConvertedLength = 0; \
+			errno_t ConvertError = mbstowcs_s(&ConvertedLength, ArgV[i], Length, UTF8ArgV[i], _TRUNCATE); \
+			if (ConvertError != FH_SUCCESS) \
+			{ \
+				delete[] ArgV; \
+				return FH_FAILURE; \
+			} \
+		} \
+		int32 Result = tchar_main(ArgV); \
+		for (int32 i = 0; i < ArgC; ++i) \
+		{ \
+			delete[] ArgV[i]; \
+		} \
+		delete[] ArgV; \
+		return Result; \
+	}*/ \
+	int32 main(int32 ArgC, ANSICHAR* UTF8ArgV[]) \
+	{ \
+		return tchar_main(UTF8ArgV); \
+	}

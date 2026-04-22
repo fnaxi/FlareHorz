@@ -9,6 +9,17 @@ using FlareCore;
 
 namespace FlareBuildTool;
 
+
+/**
+ * Contains useful fields for writing build rules scripts.
+ * Fields are set right before compiling the script.
+ */
+public static class CScript
+{
+	/** Current project path. */
+	public static string ProjectPath;
+}
+
 public static class CGlobalRules
 {
 	/** C++ dialect to use, supported ones are 11, 14, 17 and 20. */
@@ -23,10 +34,10 @@ public static class CGlobalRules
 
 public class CBuildItem // DO NOT USE DIRECTLY!
 {
-	public CBuildItem(string InScriptFilePath)
+	public CBuildItem(string InName, string InScriptFilePath)
 	{
 		ScriptFilePath = InScriptFilePath;
-		Name = CPath.GetFileNameWithoutDoubleExtension(ScriptFilePath);
+		Name = InName;
 	}
 	
 	/** Name of the target. Set basing on name of <c>.Build.cs</c> file. */
@@ -40,11 +51,13 @@ public class CBuildItem // DO NOT USE DIRECTLY!
 	
 	public virtual void GeneratePremakeCode(CPremakeFileHandle Premake) { }
 
-	public virtual void SetupRules(in List<CBuildItem> Others) { }
 	public virtual void DefaultSetupRules() { }
+	public virtual void SetupRules(in Dictionary<string, CBuildItem> Others) { }
 	
 	protected T GatherRules<T>(string TypeName)
 	{
+		CScript.ProjectPath = GetRootPath();
+		
 		Assembly BuildRules = Assembly.LoadFrom( CPath.Combine(BinariesPath, "BuildRules.dll") );
 
 		Type RuntimeType = BuildRules.GetType(TypeName);

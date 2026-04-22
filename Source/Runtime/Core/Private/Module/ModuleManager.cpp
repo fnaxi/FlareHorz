@@ -3,7 +3,7 @@
 
 #include "Module/ModuleManager.h"
 
-DEFINE_LOG_CATEGORY_STATIC(LogModuleManager, All)
+DEFINE_LOG_CATEGORY_STATIC(LogModuleManager, Log)
 
 int32 CModuleManager::CModuleInfo::CurrentLoadOrder = 1;
 
@@ -12,13 +12,13 @@ IModuleInterface* CModuleManager::LoadModule(const CString& InModuleName)
 	TSharedPtr<CModuleInfo> ModuleInfo = FindModule(InModuleName);
 	if (!ModuleInfo)
 	{
-		FH_LOG(LogModuleManager, Error, TEXT("Module %s is not registered!"), *InModuleName)
+		FH_LOG(LogModuleManager, Error, FH_TEXT("Module %s is not registered!"), *InModuleName)
 		return nullptr;
 	}
 
 	if (ModuleInfo->bWasUnloadedAtShutdown)
 	{
-		FH_LOG(LogModuleManager, Error, TEXT("Module %s was unloaded at shutdown!"), *InModuleName)
+		FH_LOG(LogModuleManager, Error, FH_TEXT("Module %s was unloaded at shutdown!"), *InModuleName)
 		return nullptr;
 	}
 
@@ -31,10 +31,10 @@ IModuleInterface* CModuleManager::LoadModule(const CString& InModuleName)
 	}
 	else
 	{
-		FH_LOG(LogModuleManager, Log, TEXT("Loaded %s module"), *InModuleName)
-		
 		Interface->StartupModule();
 		ModuleInfo->bIsReady = true;
+
+		FH_LOG(LogModuleManager, Log, FH_TEXT("Loaded %s module"), *InModuleName)
 		
 		return Interface;
 	}
@@ -51,7 +51,7 @@ IModuleInterface* CModuleManager::GetModule(const CString& InModuleName)
 	TSharedPtr<CModuleInfo> ModuleInfo = FindModule(InModuleName);
 	if (!ModuleInfo || !ModuleInfo->bIsReady)
 	{
-		FH_LOG(LogModuleManager, Error, TEXT("Module %s is not loaded!"), *InModuleName)
+		FH_LOG(LogModuleManager, Error, FH_TEXT("Module %s is not loaded!"), *InModuleName)
 		return nullptr;
 	}
 	
@@ -72,14 +72,18 @@ void CModuleManager::UnloadModulesAtShutdown()
 		ModuleNames.Add(Module.Key);
 	}
 	
-	for (int32 Order = MaxLoadOrder; Order >= 0; --Order) // TODO: TMap::CreateIterator() or TMap::Sort()
+	for (int32 Order = MaxLoadOrder; Order >= 0; --Order)
 	{
-		for (int32 i = 0; i < ModuleNames.Num(); ++i)
+		for (int32 i = 0; i < ModuleNames.Count(); ++i)
 		{
 			const CString& Name = ModuleNames[i];
 			if (Modules[Name]->LoadOrder == Order)
 			{
-				UnloadModule(Name);
+				// TODO: FindModule() is got called three times here
+				if (IsModuleLoaded(Name))
+				{
+					UnloadModule(Name);
+				}
 				if (TSharedPtr<CModuleInfo> ModuleInfo = FindModule(Name))
 				{
 					ModuleInfo->bWasUnloadedAtShutdown = true;
@@ -94,7 +98,7 @@ void CModuleManager::UnloadModule(const CString& InModuleName)
 	TSharedPtr<CModuleInfo> ModuleInfo = FindModule(InModuleName);
 	if (!ModuleInfo || !ModuleInfo->bIsReady)
 	{
-		FH_LOG(LogModuleManager, Warning, TEXT("Module %s is already unloaded!"), *InModuleName)
+		FH_LOG(LogModuleManager, Warning, FH_TEXT("UnloadModule() was called but module %s is already unloaded!"), *InModuleName)
 		return;
 	}
 
@@ -102,7 +106,7 @@ void CModuleManager::UnloadModule(const CString& InModuleName)
 	ModuleInfo->Interface->ShutdownModule();
 	ModuleInfo.PTR_Reset();
 
-	FH_LOG(LogModuleManager, Log, TEXT("Unloaded %s module"), *InModuleName)
+	FH_LOG(LogModuleManager, Log, FH_TEXT("Unloaded %s module"), *InModuleName)
 }
 
 bool CModuleManager::IsModuleLoaded(const CString& InModuleName) const
@@ -119,14 +123,13 @@ void CModuleManager::RegisterModule_Internal(const TCHAR* InModuleName, const UM
 {
 	if (Modules.Contains(InModuleName)) return;
 
-	IModuleInterface* ModuleInterface = ModuleInitializer();
-	if (ModuleInterface)
+	if (IModuleInterface* ModuleInterface = ModuleInitializer())
 	{
 		Modules.Add( InModuleName, MakeShared<CModuleInfo>(ModuleInterface) );
 	}
 	else
 	{
-		FH_LOG(LogModuleManager, Error, TEXT("The module %s was not constructed properly!"), InModuleName)
+		FH_LOG(LogModuleManager, Error, FH_TEXT("The module %s was not constructed properly!"), InModuleName)
 	}
 }
 

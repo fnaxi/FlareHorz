@@ -10,9 +10,9 @@ public class CLaunch : CModuleRules
 	{
 		bStartup = true;
 		
-		PublicDependencyModules.AddRange(new[]
+		PublicDependencyModules.AddRange(new []
 		{
-			"Core"
+			"Engine"
 		});
 	}
 }

@@ -5,20 +5,34 @@
 
 #include <cstdarg>
 
-DEFINE_LOG_CATEGORY(LogTemp)
-
 void CLogger::Log(const SLogCategoryBase& InCategory, const ELogVerbosity InVerbosity, const TCHAR* Format, ...)
 {
 	if (InVerbosity > InCategory.GetVerbosity()) return;
-
-	// TODO: Aligned logging
-
+	
+	const TCHAR* Color = NoneColor;
+	switch (InVerbosity)
+	{
+	case ELogVerbosity::Error:
+		Color = RedColor;
+		break;
+	case ELogVerbosity::Warning:
+		Color = YellowColor;
+		break;
+	case ELogVerbosity::Verbose: case ELogVerbosity::VeryVerbose:
+		Color = CyanColor;
+		break;
+	default: break;
+	}
+	
 	va_list Args;
 	va_start(Args, Format);
-
-	Printf(TEXT("%s: %s: "), *InCategory.GetName(), LogVerbosityToString(InVerbosity));
+	
+	Printf(FH_TEXT("%s"), Color);
+	Printf(FH_TEXT("%-13s%-26s"), LogVerbosityToString(InVerbosity), *InCategory.GetName());
 	Printf_V(Format, Args);
-	Printf(TEXT("\n"));
+	Printf(FH_TEXT("%s"), ResetColor);
+
+	Printf(FH_TEXT("\n"));
 	
 	va_end(Args);
 }
@@ -28,7 +42,7 @@ int32 CLogger::Printf(const TCHAR* Format, ...)
 	va_list Args;
 	va_start(Args, Format);
 
-	int32 Result = Printf_V(Format, Args);
+	const int32 Result = Printf_V(Format, Args);
 
 	va_end(Args);
 	return Result;
@@ -36,5 +50,5 @@ int32 CLogger::Printf(const TCHAR* Format, ...)
 
 int32 CLogger::Printf_V(const TCHAR* Format, va_list Args)
 {
-	return vwprintf(Format, Args);
+	return vprintf(Format, Args); // NOLINT(clang-diagnostic-format-nonliteral)
 }

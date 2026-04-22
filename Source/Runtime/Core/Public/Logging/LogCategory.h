@@ -9,7 +9,7 @@
 #define DEFINE_LOG_CATEGORY_STATIC(CategoryName, DefaultVerbosity) \
 	static struct SLogCategory##CategoryName : public SLogCategoryBase \
 	{ \
-	SLogCategory##CategoryName() : SLogCategoryBase(TEXT(#CategoryName), ELogVerbosity::DefaultVerbosity) {} \
+		SLogCategory##CategoryName() : SLogCategoryBase(FH_TEXT(#CategoryName), ELogVerbosity::DefaultVerbosity) {} \
 	} CategoryName;
 
 /** 
@@ -19,30 +19,33 @@
 #define DECLARE_LOG_CATEGORY(CategoryName, DefaultVerbosity) \
 	extern struct SLogCategory##CategoryName : public SLogCategoryBase \
 	{ \
-		SLogCategory##CategoryName() : SLogCategoryBase(TEXT(#CategoryName), ELogVerbosity::DefaultVerbosity) {} \
+		SLogCategory##CategoryName() : SLogCategoryBase(FH_TEXT(#CategoryName), ELogVerbosity::DefaultVerbosity) {} \
 	} CategoryName;
 
 /** 
  * A macro to define a logging category, paired with DECLARE_LOG_CATEGORY from the header.
  */
-#define DEFINE_LOG_CATEGORY(CategoryName) SLogCategory##CategoryName CategoryName;
+#define DEFINE_LOG_CATEGORY(CategoryName) \
+	SLogCategory##CategoryName CategoryName;
+
+// TODO: override max ELogVerbosity in config file
 
 /**
  * Base class for all log categories.
  */
 struct SLogCategoryBase
 {
-	CORE_API SLogCategoryBase(const CString& InName, const ELogVerbosity InVerbosity)
+	CORE_API SLogCategoryBase(const CString& InName, const ELogVerbosity InDefaultVerbosity)
 	{
 		Name = InName;
-		Verbosity = InVerbosity;
+		Verbosity = InDefaultVerbosity;
 	}
 
 	[[nodiscard]] const CString& GetName() const { return Name; }
 
 	[[nodiscard]] ELogVerbosity GetVerbosity() const { return Verbosity; }
 	void SetVerbosity(const ELogVerbosity InVerbosity) { Verbosity = InVerbosity; }
-
+	
 private:
 	CString Name;
 	ELogVerbosity Verbosity;

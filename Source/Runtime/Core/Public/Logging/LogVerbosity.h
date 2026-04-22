@@ -42,4 +42,4 @@ enum class ELogVerbosity : uint8
  * @param Verbosity Verbosity enum.
  * @returns String representation of the verbosity enum.
  */
-CORE_API const TCHAR* LogVerbosityToString(ELogVerbosity Verbosity);
+const TCHAR* LogVerbosityToString(ELogVerbosity Verbosity);

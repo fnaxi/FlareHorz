@@ -17,17 +17,24 @@ public class CFlareBuildTool : CApplication
 {
 	protected override Int32 GuardedMain()
 	{
+		const string BuildRulesFile = "BuildRules.csproj";
+		const string Configuration  = "Debug";
+		const string Architecture   = "x64";
+		const string Verbosity      = "minimal"; // quiet/minimal/normal/detailed/diagnostic
+		ExecuteConsoleCommand($"dotnet build {CPath.FlareCombine(BuildRulesPath, BuildRulesFile)} -c {Configuration} -a {Architecture} -v {Verbosity}");
+		
 		CAction.Run(true, () =>
 		{
 			foreach (string GroupPath in Directory.GetDirectories(BuildRulesPath).Where(s => !s.EndsWith("Programs")))
 			{
-				Enum.TryParse(Path.GetFileName(GroupPath), false, out EModuleType ModuleType);
+				Verify(Enum.TryParse(Path.GetFileName(GroupPath), false, out EModuleType ModuleType));
 
 				foreach (string ScriptFilePath in Directory.GetFiles(GroupPath))
 				{
 					VerifyScriptFile(ScriptFilePath);
 
-					BuildItems.Add(new CModule(ScriptFilePath, ModuleType));
+					string Name = CPath.GetFileNameWithoutDoubleExtension(ScriptFilePath);
+					BuildItems.Add(Name, new CModule(Name, ScriptFilePath, ModuleType));
 				}
 			}
 
@@ -40,19 +47,20 @@ public class CFlareBuildTool : CApplication
 			{
 				VerifyScriptFile(ScriptFilePath);
 
-				BuildItems.Add(new CProgram(ScriptFilePath));
+				string Name = CPath.GetFileNameWithoutDoubleExtension(ScriptFilePath);
+				BuildItems.Add(Name, new CProgram(Name, ScriptFilePath));
 			}
 
-			BuildItems.Add(new CProgram(CPath.Combine(BuildRulesPath, "BuildRules.Build.cs")));
+			BuildItems.Add("BuildRules", new CProgram("BuildRules", CPath.Combine(BuildRulesPath, "BuildRules.Build.cs")));
 
 			return $"Found {GetProgramsCount()} program{(GetProgramsCount() > 1 ? "s" : "")}";
 		});
 
 		CAction.Run(true, () =>
 		{
-			foreach (CBuildItem BuildItem in BuildItems)
+			foreach (CBuildItem BuildItem in BuildItems.Values)
 			{
-				BuildItem.SetupRules( BuildItems.Where(item => item != BuildItem).ToList() );
+				BuildItem.SetupRules(BuildItems);
 			}
 			
 			return "Build rules have been setup";
@@ -101,13 +109,10 @@ public class CFlareBuildTool : CApplication
 		});
 		PremakeFile.WritePlatforms(new List<string>
 		{
-			"Win64",
-			
-			// To allow FlareBuildTool rebuild BuildRules on PreBuildCommands step
-			"x64"
+			"Win64", "x64"
 		});
 
-		foreach (CBuildItem BuildItem in BuildItems)
+		foreach (CBuildItem BuildItem in BuildItems.Values)
 		{
 			BuildItem.GeneratePremakeCode(PremakeFile);
 		}
@@ -132,18 +137,20 @@ public class CFlareBuildTool : CApplication
 	
 	private Int32 GetModulesCount()
 	{
-		return BuildItems.OfType<CModule>().Count();
+		return BuildItems.Values.OfType<CModule>().Count();
 	}
 	private Int32 GetProgramsCount()
 	{
-		return BuildItems.OfType<CProgram>().Count();
+		return BuildItems.Values.OfType<CProgram>().Count();
 	}
 
-	private List<CBuildItem> BuildItems = new();
-	private CPremakeFileHandle PremakeFile = new();
+	/** Represent a list of all known build items with name as a key. */
+	private Dictionary<string, CBuildItem> BuildItems = new();
 	
 	/** A list of additional files to include in the solution . */
 	private List<string> SolutionItems = new() { "README.md", ".gitignore" };
+	
+	private CPremakeFileHandle PremakeFile = new();
 }
 
 public abstract class CEntryPoint

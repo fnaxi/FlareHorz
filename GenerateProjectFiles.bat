@@ -1,7 +1,6 @@
 @echo off
 rem CopyRight FlareHorz Team. All Rights Reserved.
 
-
 rem Download premake and unpack it in Binaries/ directory
 set PREMAKE_EXE=premake5.exe
 set PREMAKE_ZIP=premake-5.0.0-beta8-windows.zip
@@ -26,7 +25,7 @@ del %PREMAKE_ZIP%
 
 :PremakeDownloaded
 
-rem values: quiet/minimal/normal/detailed/diagnostic
+rem quiet/minimal/normal/detailed/diagnostic
 set BUILD_VERBOSITY=diagnostic
 
 echo Generating project files for FlareBuildTool...
@@ -55,6 +54,20 @@ if not "%1" == "BuildToolOnly" (
 	call Binaries\FlareBuildTool.exe
 	if errorlevel 1 goto Error_FlareBuildToolFailure
 )
+
+rem Copy DLLs to Binaries/ directory
+set CONFIGURATIONS=Debug Development Shipping
+set SDL_PATH=Source\ThirdParty\SDL\lib\x64\SDL3.dll
+
+for %%C in (%CONFIGURATIONS%) do (
+	if not exist "Binaries\%%C" (
+		mkdir "Binaries\%%C"
+	)
+
+	echo Copying %SDL_PATH% to Binaries\%%C...
+	copy "%SDL_PATH%" "Binaries\%%C"
+)
+
 
 goto Exit
 

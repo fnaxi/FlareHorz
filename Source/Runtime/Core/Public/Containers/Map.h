@@ -2,8 +2,6 @@
 
 #pragma once
 
-#include <algorithm>
-
 template <typename TKeyType, typename TValueType>
 class TPair
 {
@@ -14,7 +12,7 @@ public:
 		: Key(InKey), Value(InValue) {}
 
 	TPair(TKeyType&& InKey, TValueType&& InValue)
-		: Key(std::move(InKey)), Value(std::move(InValue)) {}
+		: Key(CMemoryManager::Move(InKey)), Value(CMemoryManager::Move(InValue)) {}
 
 	/** Copy constructor. */
 	TPair(const TPair& Other)
@@ -22,7 +20,7 @@ public:
 
 	/** Move constructor. */
 	TPair(TPair&& Other) noexcept
-		: Key(std::move(Other.Key)), Value(std::move(Other.Value)) {}
+		: Key(CMemoryManager::Move(Other.Key)), Value(CMemoryManager::Move(Other.Value)) {}
 
 	// Assignment operators
 	TPair& operator=(const TPair& Other)
@@ -39,8 +37,8 @@ public:
 	{
 		if (this != &Other)
 		{
-			Key = std::move(Other.Key);
-			Value = std::move(Other.Value);
+			Key = CMemoryManager::Move(Other.Key);
+			Value = CMemoryManager::Move(Other.Value);
 		}
 		return *this;
 	}
@@ -68,7 +66,7 @@ public:
 	 */
 	void Add(const TKeyType& Key, const TValueType& Value)
 	{
-		for (UArraySizeType i = 0; i < Pairs.Num(); ++i)
+		for (UArraySizeType i = 0; i < Pairs.Count(); ++i)
 		{
 			if (Pairs[i].Key == Key)
 			{
@@ -80,9 +78,9 @@ public:
 	}
 
 	// TODO: doc
-	FORCEINLINE void Remove(const TKeyType& Key)
+	void Remove(const TKeyType& Key)
 	{
-		for (UArraySizeType i = 0; i < Pairs.Num(); )
+		for (UArraySizeType i = 0; i < Pairs.Count(); )
 		{
 			if (Pairs[i].Key == Key)
 			{
@@ -116,7 +114,7 @@ public:
 	/** @return he number of elements in the map. */
 	[[nodiscard]] FORCEINLINE int32 Num() const
 	{
-		return Pairs.Num();
+		return Pairs.Count();
 	}
 
 	/**
@@ -137,7 +135,7 @@ public:
 	 */
 	[[nodiscard]] FORCEINLINE const TValueType* Find(const TKeyType& Key) const
 	{
-		for (UArraySizeType i = 0; i < Pairs.Num(); ++i)
+		for (UArraySizeType i = 0; i < Pairs.Count(); ++i)
 		{
 			if (Pairs[i].Key == Key)
 			{
@@ -152,13 +150,22 @@ private:
 	TArray<UPairType> Pairs;
 	
 public:
+	/**
+	 * DO NOT USE DIRECTLY!
+	 * STL-like iterators to enable range-based for loop support.
+	 */
+	UPairType* begin()				{ return Pairs.begin(); }
+	UPairType* end()				{ return Pairs.end(); }
+	const UPairType* begin() const	{ return Pairs.begin(); }
+	const UPairType* end() const	{ return Pairs.end(); }
+
 	/*----------------------------------------------------------------------------
 		Operators
 	----------------------------------------------------------------------------*/
 
-	FORCEINLINE TValueType& operator[](const TKeyType& Key)
+	TValueType& operator[](const TKeyType& Key)
 	{
-		for (UArraySizeType i = 0; i < Pairs.Num(); ++i)
+		for (UArraySizeType i = 0; i < Pairs.Count(); ++i)
 		{
 			if (Pairs[i].Key == Key)
 			{
@@ -169,10 +176,5 @@ public:
 		Pairs.Add(UPairType(Key, TValueType()));
 		return Pairs.Last().Value;
 	}
-	
-	UPairType* begin()				{ return Pairs.begin(); }
-	UPairType* end()				{ return Pairs.end(); }
-	const UPairType* begin() const	{ return Pairs.begin(); }
-	const UPairType* end() const	{ return Pairs.end(); }
 
 };

@@ -1,17 +1,42 @@
 // CopyRight FlareHorz Team. All Rights Reserved.
 
 
-#include "Launch.h"
+#include "CoreTypes.h"
+#include "Engine.h"
+#include "LaunchEngineLoop.h"
 
-#include "CoreMinimal.h"
-#include "Module/ModuleManager.h"
+static CEngineLoop GEngineLoop;
 
-int32 main(int32 ArgC, ANSICHAR** ArgV)
+int32 GuardedMain(const TCHAR* CmdLine)
 {
-	CModuleManager::Get().LoadModule(TEXT("Core"));
+	// Make sure CEngineLoop::Exit() is always called
+	struct SEngineLoopCleanupGuard 
+	{ 
+		~SEngineLoopCleanupGuard()
+		{
+			GEngineLoop.Exit();
+		}
+	} CleanupGuard;
 
-	CModuleManager::Get().UnloadModulesAtShutdown();
+	int32 ExitResult = GEngineLoop.PreInit(CmdLine);
+	if (ExitResult != FH_SUCCESS)
+	{
+		return ExitResult;
+	}
+
+	ExitResult = GEngineLoop.Init();
+	if (ExitResult != FH_SUCCESS)
+	{
+		return ExitResult;
+	}
 	
-	return 0;
+	while (GEngine && !GEngine->IsRequestingExit())
+	{
+		GEngineLoop.Tick();
+	}
+	
+	return FH_SUCCESS;
 }
+
+IMPLEMENT_ENTRY_POINT()
 

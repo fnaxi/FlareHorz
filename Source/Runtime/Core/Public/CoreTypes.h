@@ -2,9 +2,7 @@
 
 #pragma once
 
-/*----------------------------------------------------------------------------
-	Low level includes
-----------------------------------------------------------------------------*/
-
 #include "Platform/Platform.h"
 #include "Misc/CoreDefines.h"
+
+enum : uint8 { FH_SUCCESS = 0, FH_FAILURE = 1 };

@@ -326,7 +326,7 @@ public:
 	}
 
 	/** Returns current number of elements in the array. */
-	[[nodiscard]] FORCEINLINE UArraySizeType Num() const
+	[[nodiscard]] FORCEINLINE UArraySizeType Count() const
 	{
 		return ArrayNum;
 	}
@@ -348,7 +348,7 @@ public:
 	 *
 	 * @param NewNum New size of the array.
 	 */
-	void SetNum(const UArraySizeType NewNum)
+	void SetCount(const UArraySizeType NewNum)
 	{
 		if (NewNum > ArrayMax)
 		{

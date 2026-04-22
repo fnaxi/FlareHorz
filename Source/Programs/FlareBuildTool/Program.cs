@@ -42,9 +42,9 @@ public class CProgramRules
 
 public class CProgram : CBuildItem
 {
-	public CProgram(string InScriptFilePath) : base(InScriptFilePath)
+	public CProgram(string InName, string InScriptFilePath) : base(InName, InScriptFilePath)
 	{
-		CLog.Info($"Instantiated {Name} program with script {ScriptFilePath}");
+		CLog.Info($"Instantiated {Name} program with script {CPath.ToFlare(ScriptFilePath)}");
 
 		Rules = GatherRules<CProgramRules>(IsBuildRulesProgram() ? $"BuildRules.C{Name}" : $"BuildRules.Programs.C{Name}");
 		DefaultSetupRules();
@@ -74,7 +74,7 @@ public class CProgram : CBuildItem
 			BinariesPath = CPath.ToFlare(BinariesPath),
 			IntermediatePath = CPath.ToFlare(IntermediatePath),
 			OutputType = Rules.OutputType,
-			Language = ETargetLanguage.CSharp,
+			Language = ELanguage.CSharp,
 			FileDirectories = Rules.FileDirectories,
 			ExcludeFileDirectories = Rules.ExcludeFileDirectories,
 			Links = Rules.Dependencies,
@@ -99,7 +99,7 @@ public class CProgram : CBuildItem
 		}
 	}
 
-	public override void SetupRules(in List<CBuildItem> Others)
+	public override void SetupRules(in Dictionary<string, CBuildItem> Others)
 	{
 		// List<CProgram> Programs = Others.OfType<CProgram>().ToList();
 	}

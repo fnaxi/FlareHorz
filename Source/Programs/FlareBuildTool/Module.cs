@@ -9,48 +9,33 @@ namespace FlareBuildTool;
 
 public enum EModuleType
 {
+	Invalid = 0,
 	Runtime,
 	Editor,
 	ThirdParty,
 	Game
 }
-
 public class CModuleRules
 {
 	public List<string> PublicDependencyModules = new();
-	public List<string> PrivateDependencyModules = new();
-	public List<string> GetDependencyModules()
-	{
-		return Concat(PublicDependencyModules, PrivateDependencyModules);
-	}
-	
-	public List<string> PublicDependencyLibraries = new();
-	public List<string> PrivateDependencyLibraries = new();
-	public List<string> GetDependencyLibraries()
-	{
-		return Concat(PublicDependencyLibraries, PrivateDependencyLibraries);
-	}
+    public List<string> PrivateDependencyModules = new();
+   	public List<string> GetDependencyModules() { return Concat(PublicDependencyModules, PrivateDependencyModules); }
+    	
+    public List<string> PublicDependencyLibraries = new();
+    public List<string> PrivateDependencyLibraries = new();
+    public List<string> GetDependencyLibraries() { return Concat(PublicDependencyLibraries, PrivateDependencyLibraries); }
 	
 	public List<string> PublicIncludeDirectories = new();
 	public List<string> PrivateIncludeDirectories = new();
-	public List<string> GetIncludeDirectories()
-	{
-		return Concat(PublicIncludeDirectories, PrivateIncludeDirectories);
-	}
+	public List<string> GetIncludeDirectories() { return Concat(PublicIncludeDirectories, PrivateIncludeDirectories); }
 	
 	public List<string> PublicLibraryDirectories = new();
 	public List<string> PrivateLibraryDirectories = new();
-	public List<string> GetLibraryDirectories()
-	{
-		return Concat(PublicLibraryDirectories, PrivateLibraryDirectories);
-	}
+	public List<string> GetLibraryDirectories() { return Concat(PublicLibraryDirectories, PrivateLibraryDirectories); }
 	
 	public List<string> PublicDefines = new();
 	public List<string> PrivateDefines = new();
-	public List<string> GetDefines()
-	{
-		return Concat(PublicDefines, PrivateDefines);
-	}
+	public List<string> GetDefines() { return Concat(PublicDefines, PrivateDefines); }
 	
 	/** Specifies files to include/exclude in the project. */
 	public List<string> FileDirectories = new();
@@ -64,19 +49,30 @@ public class CModuleRules
 	public bool bStartup = false;
 }
 
+public class CThirdPartyModuleRules : CModuleRules
+{
+	public EBuildOutputType OutputType = EBuildOutputType.None;
+}
+
 public class CModule : CBuildItem
 {
-	public CModule(string InScriptFilePath, EModuleType InModuleType) : base(InScriptFilePath)
+	public CModule(string InName, string InScriptFilePath, EModuleType InModuleType) : base(InName, InScriptFilePath)
 	{
-		CLog.Info($"Instantiated {Name} module of type {ModuleType} with script {ScriptFilePath}");
-		
 		ModuleType = InModuleType;
+		
+		CLog.Info($"Instantiated {Name} module of type {ModuleType} with script {CPath.ToFlare(ScriptFilePath)}");
+
 		Rules = GatherRules<CModuleRules>($"BuildRules.{ModuleType}.C{Name}");
+		Verify(!(ModuleType == EModuleType.ThirdParty && Rules is not CThirdPartyModuleRules), "Third-party modules must use CThirdPartyModuleRules");
+		Verify(!(ModuleType != EModuleType.ThirdParty && Rules is CThirdPartyModuleRules), "Non-third-party modules must use CModuleRules");
+
 		DefaultSetupRules();
 	}
 	
 	public readonly EModuleType ModuleType;
 	public readonly CModuleRules Rules;
+
+	private List<string> Links = new();
 	
 	private const string DllImport = "__declspec(dllimport)";
 	private const string DllExport = "__declspec(dllexport)";
@@ -90,11 +86,21 @@ public class CModule : CBuildItem
 
 	public override void GeneratePremakeCode(CPremakeFileHandle Premake)
 	{
-		List<string> Links = Concat(Rules.GetDependencyModules(), Rules.GetLibraryDirectories());
 		List<string> Defines = Rules.GetDefines();
 		
 		List<string> IncludeDirectories = Rules.GetIncludeDirectories();
 		List<string> LibraryDirectories = Rules.GetLibraryDirectories();
+
+		EBuildOutputType OutputType;
+		if (Rules is CThirdPartyModuleRules ThirdPartyRules)
+		{
+			Verify(ThirdPartyRules.OutputType != EBuildOutputType.Executable, "Third-party modules can't be an executable!");
+			OutputType = ThirdPartyRules.OutputType;
+		}
+		else
+		{
+			OutputType = Rules.bStartup ? EBuildOutputType.Executable : EBuildOutputType.DynamicLibrary;
+		}
 		
 		Premake.WriteGroupBegin(ModuleType.ToString());
 		CProjectInfo Info = new CProjectInfo
@@ -104,8 +110,8 @@ public class CModule : CBuildItem
 			Location = GetRootPath(),
 			BinariesPath = CPath.FlareCombine(BinariesPath, "%{cfg.buildcfg}"),
 			IntermediatePath = CPath.FlareCombine(IntermediatePath, "%{cfg.buildcfg}"),
-			OutputType = Rules.bStartup ? EBuildOutputType.Executable : EBuildOutputType.DynamicLibrary,
-			Language = ETargetLanguage.Cxx,
+			OutputType = OutputType,
+			Language = ELanguage.Cxx,
 			FileDirectories = Rules.FileDirectories,
 			ExcludeFileDirectories = Rules.ExcludeFileDirectories,
 			Links = Links,
@@ -125,47 +131,13 @@ public class CModule : CBuildItem
 		Premake.WriteProjectCode(Info);
 		Premake.WriteGroupEnd();
 		
-		CLog.Verbose($"GeneratePremakeCode() completed for {Name} module");
+		CLog.Info($"Generated premake code for {Name} module");
 	}
-
-	public override void SetupRules(in List<CBuildItem> Others)
-	{
-		List<CModule> Modules = Others.OfType<CModule>().ToList();
-		
-		foreach (CModule OtherModule in Modules.Where(m => !m.Rules.bStartup))
-		{
-			Rules.PrivateDefines.Add($"{OtherModule.Name.ToUpper()}_API={DllImport}");
-		}
-		
-		foreach (string OtherModuleName in Rules.PublicDependencyModules)
-		{
-			CModule OtherModule = FindModuleByName(OtherModuleName, Modules);
-			Verify(!OtherModule.Rules.bStartup, "Can't have startup module as a dependency!");
-			
-			foreach (string IncludeDirectory in OtherModule.Rules.PublicIncludeDirectories
-				         .Where(IncludeDirectory => !Rules.PublicIncludeDirectories.Contains(IncludeDirectory)))
-			{
-				if (Rules.PrivateIncludeDirectories.Contains(IncludeDirectory))
-				{
-					Rules.PrivateIncludeDirectories.Remove(IncludeDirectory);
-				}
-				Rules.PublicIncludeDirectories.Add(IncludeDirectory);
-			}
-		}
-		foreach (string OtherModuleName in Rules.PrivateDependencyModules)
-		{
-			CModule OtherModule = FindModuleByName(OtherModuleName, Modules);
-			foreach (string IncludeDirectory in OtherModule.Rules.PublicIncludeDirectories
-				         .Where(IncludeDirectory => !Rules.GetIncludeDirectories().Contains(IncludeDirectory)))
-			{
-				Rules.PrivateIncludeDirectories.Add(IncludeDirectory);
-			}
-		}
-		
-		CLog.Verbose($"SetupRules() completed for {Name} module");
-	}
+	
 	public sealed override void DefaultSetupRules()
 	{
+		if (ModuleType == EModuleType.ThirdParty) return;
+		
 		Rules.FileDirectories.AddRange(new[]
 		{
 			CPath.FlareCombine(GetRootPath(), "Public", "**.h"),
@@ -176,10 +148,6 @@ public class CModule : CBuildItem
 		{
 			CPath.FlareCombine(GetRootPath(), "Public")
 		});
-		Rules.PreBuildCommands.AddRange(new[]
-		{
-			CPath.FlareCombine(BinariesPath, $"{TargetAssembly.GetName().Name}.exe")
-		});
 		
 		if (!Rules.bStartup)
 		{
@@ -189,8 +157,6 @@ public class CModule : CBuildItem
 
 		Rules.PrivateDefines.AddRange(new[]
 		{
-			"NO_API=",
-			
 			// Used in IMPLEMENT_MODULE() macro to check that passed name is correct
 			$"FH_MODULE_NAME={Name}",
 			
@@ -200,11 +166,148 @@ public class CModule : CBuildItem
 		});
 	}
 	
+	public override void SetupRules(in Dictionary<string, CBuildItem> Others)
+	{
+		List<CModule> Modules = Others.Values.OfType<CModule>().ToList();
+		Dictionary<string, CModule> ModuleMap = Modules.ToDictionary(m => m.Name, m => m);
+		
+		foreach (CModule OtherModule in Modules.Where(m => m != this && !m.Rules.bStartup && !ModuleIsThirdPartyWithNoOutput(m)))
+		{
+			// TODO: Add API macro only for modules that are linked
+			
+			Rules.PrivateDefines.Add($"{OtherModule.Name.ToUpper()}_API={DllImport}");
+		}
+		
+		// TODO: Revisit code below
+		
+		// Public dependency modules
+		foreach (string OtherModuleName in Rules.PublicDependencyModules)
+		{
+			CModule OtherModule = FindModuleByName(OtherModuleName, Modules);
+			Verify(!OtherModule.Rules.bStartup, "Can't have startup module as a dependency!");
+			
+			// Include directories
+			foreach (string IncludeDirectory in OtherModule.Rules.PublicIncludeDirectories
+				         .Where(IncludeDirectory => !Rules.PublicIncludeDirectories.Contains(IncludeDirectory)))
+			{
+				if (Rules.PrivateIncludeDirectories.Contains(IncludeDirectory))
+				{
+					Rules.PrivateIncludeDirectories.Remove(IncludeDirectory);
+				}
+				Rules.PublicIncludeDirectories.Add(IncludeDirectory);
+			}
+			
+			// Library directories
+			foreach (string LibraryDirectory in OtherModule.Rules.PublicLibraryDirectories
+				         .Where(LibraryDirectory => !Rules.PublicLibraryDirectories.Contains(LibraryDirectory)))
+			{
+				if (Rules.PrivateLibraryDirectories.Contains(LibraryDirectory))
+				{
+					Rules.PrivateLibraryDirectories.Remove(LibraryDirectory);
+				}
+				Rules.PublicLibraryDirectories.Add(LibraryDirectory);
+			}
+
+			// Libraries
+			foreach (string LibraryName in OtherModule.Rules.PublicDependencyLibraries)
+			{
+				if (Rules.PrivateDependencyLibraries.Contains(LibraryName))
+				{
+					Rules.PrivateDependencyLibraries.Remove(LibraryName);
+				}
+				Rules.PublicDependencyLibraries.Add(LibraryName);
+			}
+		}
+		
+		// Private dependency modules
+		foreach (string OtherModuleName in Rules.PrivateDependencyModules)
+		{
+			CModule OtherModule = FindModuleByName(OtherModuleName, Modules);
+			Verify(!OtherModule.Rules.bStartup, "Can't have startup module as a dependency!");
+			
+			// Include directories
+			foreach (string IncludeDirectory in OtherModule.Rules.PublicIncludeDirectories
+				         .Where(IncludeDirectory => !Rules.GetIncludeDirectories().Contains(IncludeDirectory)))
+			{
+				Rules.PrivateIncludeDirectories.Add(IncludeDirectory);
+			}
+			
+			// Library directories
+			foreach (string LibraryDirectory in OtherModule.Rules.PublicLibraryDirectories
+				         .Where(LibraryDirectory => !Rules.GetLibraryDirectories().Contains(LibraryDirectory)))
+			{
+				Rules.PrivateLibraryDirectories.Add(LibraryDirectory);
+			}
+			
+			// Libraries
+			foreach (string LibraryName in OtherModule.Rules.PublicDependencyLibraries
+				         .Where(LibraryName => !Rules.GetDependencyLibraries().Contains(LibraryName)))
+			{
+				Rules.PrivateDependencyLibraries.Add(LibraryName);
+			}
+		}
+		
+		// TODO: Revisit this. Dependencies are only half implemented
+		Links.AddRange( GatherDependenciesBFS(this, ModuleMap) );
+		
+		CLog.Info($"SetupRules() completed for {Name} module");
+	}
+	
+	// TODO: static can be removed so RootModule will be this
+	private static List<string> GatherDependenciesBFS(CModule RootModule, Dictionary<string, CModule> AllModules)
+	{
+		List<string> Dependencies = new();
+		HashSet<string> Visited = new();
+		
+		Queue<CModule> Queue = new();
+		Queue.Enqueue(RootModule);
+
+		while (Queue.Count > 0)
+		{
+			CModule CurrentModule = Queue.Dequeue();
+
+			foreach (string DepName in CurrentModule.Rules.GetDependencyModules())
+			{
+				if (Visited.Contains(DepName))
+					continue;
+
+				if (!AllModules.TryGetValue(DepName, out CModule DepModule))
+					continue;
+
+				Visited.Add(DepName);
+
+				if (!ModuleIsThirdPartyWithNoOutput(DepModule))
+				{
+					Dependencies.Add(DepModule.Name);
+					CLog.Verbose($"{RootModule.Name} module: Added {DepName} module dependency");
+				}
+				else
+				{
+					Dependencies.AddRange(DepModule.Rules.PublicDependencyLibraries);
+					foreach (string LibName in DepModule.Rules.PublicDependencyLibraries)
+					{
+						CLog.Verbose($"{RootModule.Name} module: Added {LibName} library dependency");
+					}
+				}
+
+				Queue.Enqueue(DepModule);
+			}
+		}
+		return Dependencies;
+	}
+
 	private static CModule FindModuleByName(string InName, in List<CModule> Modules)
 	{
 		CModule Module = Modules.Find(m => m.Name == InName);
-		Verify(Module != null, $"Could not find Module: {InName}");
 		
+		CLog.Verbose($"FindModuleByName({InName}) was called");
+		Verify(Module != null, $"Could not find module with name: {InName}");
+
 		return Module;
+	}
+
+	private static bool ModuleIsThirdPartyWithNoOutput(CModule Module)
+	{
+		return Module.ModuleType == EModuleType.ThirdParty && Module.Rules is CThirdPartyModuleRules { OutputType: EBuildOutputType.None };
 	}
 }

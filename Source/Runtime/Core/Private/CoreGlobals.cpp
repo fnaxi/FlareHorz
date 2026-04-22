@@ -5,5 +5,6 @@
 
 #include "Module/ModuleManager.h"
 
-IMPLEMENT_MODULE( CDefaultModuleImpl, Core )
+DEFINE_LOG_CATEGORY(LogTemp)
 
+IMPLEMENT_MODULE( CDefaultModuleImpl, Core )

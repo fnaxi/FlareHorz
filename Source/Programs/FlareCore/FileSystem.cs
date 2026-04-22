@@ -1,5 +1,6 @@
 // CopyRight FlareHorz Team. All Rights Reserved.
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.IO;
@@ -21,7 +22,7 @@ public static class CPath
 	}
 	
 	/** Similar to Directory.GetParent() but allows to set levels. */
-	public static string GetParent(string InPath, int Levels = 1)
+	public static string GetParent(string InPath, Int32 Levels = 1)
 	{
 		Verify(Levels >= 1, "Levels must be >= 1");
 
@@ -36,6 +37,7 @@ public static class CPath
 		return Info.FullName;
 	}
 
+	// CFileHandle class has Path field which overlaps with built-in System.IO.Path class. This way we can call the base method using CPath.Combine()
 	public static string Combine(string InPath1, string InPath2) { return Path.Combine(InPath1, InPath2); }
 	public static string Combine(string InPath1, string InPath2, string InPath3) { return Path.Combine(InPath1, InPath2, InPath3); }
 	public static string Combine(string InPath1, string InPath2, string InPath3, string InPath4) { return Path.Combine(InPath1, InPath2, InPath3, InPath4); }

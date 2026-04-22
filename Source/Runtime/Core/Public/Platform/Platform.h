@@ -29,7 +29,7 @@
 
 // If we don't have a platform-specific define for the TEXT macro, define it now
 #if !defined(TEXT)
-	#define TEXT(x) L ## x
+	#define FH_TEXT(x) x
 #endif
 
 /*----------------------------------------------------------------------------
@@ -72,8 +72,8 @@ namespace FH::Core::Private
 	template <typename T>
 	inline constexpr bool TAreTypesEqual_V<T, T> = true;
 
-	static_assert(sizeof(TCHAR) == 2, "TCHAR size must be 2 bytes!");
-
+	// static_assert(sizeof(TCHAR) == 2, "TCHAR size must be 2 bytes!");
+	
 	static_assert(PLATFORM_32BITS || PLATFORM_64BITS, "Type tests pointer size failed!");
 	static_assert(PLATFORM_32BITS != PLATFORM_64BITS, "Type tests pointer exclusive failed!");
 	

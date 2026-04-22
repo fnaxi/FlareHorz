@@ -159,4 +159,4 @@ namespace FH::Core::Private
 			CModuleManager::Get().RegisterModule_Internal(Name, ModuleInitializer); \
 		} \
 	}; \
-	static Z_C_##ModuleName##_ModuleRegistrator Z_##ModuleName##_ModuleRegistrator(TEXT(#ModuleName), Z_Initialize##ModuleName##Module);
+	static Z_C_##ModuleName##_ModuleRegistrator Z_##ModuleName##_ModuleRegistrator(FH_TEXT(#ModuleName), Z_Initialize##ModuleName##Module);

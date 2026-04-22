@@ -24,10 +24,6 @@
 #define DLLEXPORT				__declspec(dllexport)
 #define DLLIMPORT				__declspec(dllimport)
 
-#ifndef _UNICODE
-	#error FlareHorz does not support ANSI builds!
-#endif
-
 /**
  * Windows specific types.
  */
@@ -79,7 +75,7 @@ struct SWindowsPlatformTypes
 	typedef wchar_t				WIDECHAR;
 	
 	/** A switchable character. */
-	typedef WIDECHAR			TCHAR;
+	typedef ANSICHAR			TCHAR; // TODO: use WIDECHAR
 	
 	/**
 	 * An 8-bit character type. In-memory only. 8-bit representation.
