@@ -89,9 +89,9 @@ void CEngine::Tick()
 
 void CEngine::Shutdown()
 {
+	SDL_DestroyRenderer(Renderer);
 	SDL_DestroyWindow(Window);
 	SDL_DestroySurface(WindowIcon);
-	SDL_DestroyRenderer(Renderer);
 	SDL_Quit();
 }
 

@@ -38,7 +38,7 @@ public class CApplication
 	protected static Int32 ExecuteConsoleCommand(string InCommand)
 	{
 		Verify(IsTextValid(InCommand));
-		CLog.Info($"Running command: {InCommand}");
+		CLog.Info($"Executing command: {InCommand}");
 
 		ProcessStartInfo CommandProcessInfo = new ProcessStartInfo("cmd.exe", "/c" + InCommand)
 		{

@@ -27,10 +27,7 @@
 
 #include FH_PLATFORM_HEADER(PlatformMemory.h)
 
-// If we don't have a platform-specific define for the TEXT macro, define it now
-#if !defined(TEXT)
-	#define FH_TEXT(x) x
-#endif
+#define FH_TEXT(x) x
 
 /*----------------------------------------------------------------------------
 	Transfer the platform types to global types
