@@ -160,8 +160,6 @@ public class CPremakeFileHandle : CFileHandle
 			WriteOptimizeOn();
 		}
 		
-		// TODO: Test
-		
 		WriteConfigurationFilter("Shipping");
 		{
 			WriteRuntime(ERuntimeType.Release);
@@ -239,9 +237,7 @@ public class CPremakeFileHandle : CFileHandle
 	public void WriteIntermediatePath(string Path) { _WriteConstructor("objdir",  $"\"{Path}\""); }
 	public void WriteFiles(List<string> Files) { _WriteList("files", Files); }
 	public void WriteLinks(List<string> Links) { _WriteList("links", Links); }
-	
 	public void WriteConfigurationFilter(string Configuration) { WriteFilter("configurations", Configuration); }
-	
 	public void WritePlatformFilter(string Platform) { WriteFilter("platforms", Platform); }
 	public void WriteFilter(string Collection, string Filter) { _WriteParam("filter", $"{Collection}:{Filter}"); }
 	public void WriteFilterEnd() { Write("filter {}"); }

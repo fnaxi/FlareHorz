@@ -109,7 +109,7 @@ public class CModule : CBuildItem
 			OutputName = Rules.bStartup ? ExecutableName : Name,
 			Location = GetRootPath(),
 			BinariesPath = CPath.FlareCombine(BinariesPath, "%{cfg.buildcfg}"),
-			IntermediatePath = CPath.FlareCombine(IntermediatePath, "%{cfg.buildcfg}"),
+			IntermediatePath = CPath.ToFlare(IntermediatePath),
 			OutputType = OutputType,
 			Language = ELanguage.Cxx,
 			FileDirectories = Rules.FileDirectories,
@@ -157,8 +157,12 @@ public class CModule : CBuildItem
 
 		Rules.PrivateDefines.AddRange(new[]
 		{
-			// Used in IMPLEMENT_MODULE() macro to check that passed name is correct
+			// Used in IMPLEMENT_MODULE() macro to check that passed module name is correct
 			$"FH_MODULE_NAME={Name}",
+			"NO_API=",
+			
+			// TODO: Define WITH_EDITOR only for Editor configurations
+			"WITH_EDITOR=1",
 			
 			// TODO: Cross-platform
 			"PLATFORM_WINDOWS=1",
@@ -166,6 +170,7 @@ public class CModule : CBuildItem
 		});
 	}
 	
+	// TODO: Add dependent modules by condition
 	public override void SetupRules(in Dictionary<string, CBuildItem> Others)
 	{
 		List<CModule> Modules = Others.Values.OfType<CModule>().ToList();

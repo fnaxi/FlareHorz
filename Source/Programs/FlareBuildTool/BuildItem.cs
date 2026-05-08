@@ -23,13 +23,13 @@ public static class CScript
 public static class CGlobalRules
 {
 	/** C++ dialect to use, supported ones are 11, 14, 17 and 20. */
-	public static Int32 CxxVersion = 17;
+	public const Int32 CxxVersion = 17;
 
 	/** C# version to use. */
-	public static float CSharpVersion = 11.0f;
+	public const float CSharpVersion = 11.0f;
 
 	/** .NET Framework version to use for C#. */
-	public static float DotNetFrameworkVersion = 4.8f;
+	public const float DotNetFrameworkVersion = 4.8f;
 }
 
 public class CBuildItem // DO NOT USE DIRECTLY!

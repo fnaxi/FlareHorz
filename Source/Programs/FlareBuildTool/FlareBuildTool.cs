@@ -17,19 +17,23 @@ public class CFlareBuildTool : CApplication
 {
 	protected override Int32 GuardedMain()
 	{
+		CTimer ExecutionTimer = new CTimer();
+		
+		// Compile BuildRules.dll
 		const string BuildRulesFile = "BuildRules.csproj";
 		const string Configuration  = "Debug";
 		const string Architecture   = "x64";
 		const string Verbosity      = "minimal"; // quiet/minimal/normal/detailed/diagnostic
 		ExecuteConsoleCommand($"dotnet build {CPath.FlareCombine(BuildRulesPath, BuildRulesFile)} -c {Configuration} -a {Architecture} -v {Verbosity}");
 		
+		// Search for modules
 		CAction.Run(true, () =>
 		{
 			foreach (string GroupPath in Directory.GetDirectories(BuildRulesPath).Where(s => !s.EndsWith("Programs")))
 			{
 				Verify(Enum.TryParse(Path.GetFileName(GroupPath), false, out EModuleType ModuleType));
 				Verify(ModuleType != EModuleType.Invalid);
-
+				
 				foreach (string ScriptFilePath in Directory.GetFiles(GroupPath))
 				{
 					VerifyScriptFile(ScriptFilePath);
@@ -42,6 +46,7 @@ public class CFlareBuildTool : CApplication
 			return $"Found {GetModulesCount()} module{(GetModulesCount() > 1 ? "s" : "")}";
 		});
 		
+		// Search for programs
 		CAction.Run(true, () =>
 		{
 			foreach (string ScriptFilePath in Directory.GetFiles(CPath.Combine(BuildRulesPath, "Programs")))
@@ -57,6 +62,7 @@ public class CFlareBuildTool : CApplication
 			return $"Found {GetProgramsCount()} program{(GetProgramsCount() > 1 ? "s" : "")}";
 		});
 
+		// Setup build rules
 		CAction.Run(true, () =>
 		{
 			foreach (CBuildItem BuildItem in BuildItems.Values)
@@ -72,8 +78,14 @@ public class CFlareBuildTool : CApplication
 			CreatePremakeFile();
 			return "Created premake file";
 		});
-		
-		return RunPremake("vs2022");
+
+		// Run premake
+		Int32 PremakeExitResult = RunPremake("vs2022");
+		{
+			ExecutionTimer.Stop();
+			CLog.Info($"Generated project files in {ExecutionTimer}");
+		}
+		return PremakeExitResult;
 	}
 	
 	private void CreatePremakeFile()
@@ -149,7 +161,7 @@ public class CFlareBuildTool : CApplication
 	private Dictionary<string, CBuildItem> BuildItems = new();
 	
 	/** A list of additional files to include in the solution . */
-	private List<string> SolutionItems = new() { "README.md", ".gitignore" };
+	private readonly List<string> SolutionItems = new() { "README.md", ".gitignore" };
 	
 	private CPremakeFileHandle PremakeFile = new();
 }

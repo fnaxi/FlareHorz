@@ -13,7 +13,7 @@ public class CEngine : CModuleRules
 		{
 			"Core",
 			"SDL",
-			"ImGui"
+			"Editor"
 		});
 	}
 }

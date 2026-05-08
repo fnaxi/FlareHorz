@@ -28,6 +28,7 @@ void CLogger::Log(const SLogCategoryBase& InCategory, const ELogVerbosity InVerb
 	va_start(Args, Format);
 	
 	Printf(FH_TEXT("%s"), Color);
+	// TODO: Remove L_ prefix from log category
 	Printf(FH_TEXT("%-13s%-26s"), LogVerbosityToString(InVerbosity), *InCategory.GetName());
 	Printf_V(Format, Args);
 	Printf(FH_TEXT("%s"), ResetColor);

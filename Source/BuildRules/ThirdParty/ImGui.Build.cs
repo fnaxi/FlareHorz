@@ -9,7 +9,7 @@ public class CImGui : CThirdPartyModuleRules
 {
 	public CImGui()
 	{
-		// Using Dear ImGui via a shared library is not recommended
+		// Using Dear ImGui via a shared library is not recommended (see Source/ThirdParty/ImGui/Source/imgui.h)
 		OutputType = EBuildOutputType.StaticLibrary;
 		
 		FileDirectories.AddRange(new[]
@@ -32,8 +32,11 @@ public class CImGui : CThirdPartyModuleRules
 
 		// SDL3 + SDLRenderer3 backend
 		{
-			FileDirectories.Add(CPath.FlareCombine(CScript.ProjectPath, "backends/imgui_impl_sdl3.**"));
-			FileDirectories.Add(CPath.FlareCombine(CScript.ProjectPath, "backends/imgui_impl_sdlrenderer3.**"));
+			FileDirectories.AddRange(new[]
+			{
+				CPath.FlareCombine(CScript.ProjectPath, "backends/imgui_impl_sdl3.**"),
+				CPath.FlareCombine(CScript.ProjectPath, "backends/imgui_impl_sdlrenderer3.**")
+			});
 			// FileDirectories.Add(CPath.FlareCombine(CScript.ProjectPath, "examples/example_sdl3_sdlrenderer3/main.cpp"));
 			
 			PublicDependencyModules.Add("SDL");

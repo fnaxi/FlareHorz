@@ -19,6 +19,11 @@ public:
 	FORCEINLINE bool IsRequestingExit() const { return bRequestingExit; }
 	
 private:
+	
+#if WITH_EDITOR
+	class CEditor* Editor;
+#endif
+	
 	struct SDL_Window* Window;
 	struct SDL_Surface* WindowIcon;
 
@@ -29,7 +34,6 @@ private:
 	bool bRequestingExit = false;
 
 	void Render();
-	void RenderImGui();
 };
 
 /** Global engine pointer. Can be nullptr so don't use without checking. */

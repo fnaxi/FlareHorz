@@ -8,7 +8,7 @@ class CWindowsMemoryManager
 {
 public:
 	template <typename T>
-	static constexpr CORE_API std::remove_reference_t<T>&& Move(T&& Arg) noexcept
+	static constexpr std::remove_reference_t<T>&& Move(T&& Arg) noexcept
 	{
 		return static_cast<std::remove_reference_t<T>&&>(Arg);
 	}

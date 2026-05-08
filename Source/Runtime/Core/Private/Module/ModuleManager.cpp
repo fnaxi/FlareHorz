@@ -3,7 +3,7 @@
 
 #include "Module/ModuleManager.h"
 
-DEFINE_LOG_CATEGORY_STATIC(LogModuleManager, Log)
+DEFINE_LOG_CATEGORY_STATIC(L_ModuleManager, Log)
 
 int32 CModuleManager::CModuleInfo::CurrentLoadOrder = 1;
 
@@ -12,13 +12,13 @@ IModuleInterface* CModuleManager::LoadModule(const CString& InModuleName)
 	TSharedPtr<CModuleInfo> ModuleInfo = FindModule(InModuleName);
 	if (!ModuleInfo)
 	{
-		FH_LOG(LogModuleManager, Error, FH_TEXT("Module %s is not registered!"), *InModuleName)
+		FH_LOG(L_ModuleManager, Error, FH_TEXT("Module %s is not registered!"), *InModuleName)
 		return nullptr;
 	}
 
 	if (ModuleInfo->bWasUnloadedAtShutdown)
 	{
-		FH_LOG(LogModuleManager, Error, FH_TEXT("Module %s was unloaded at shutdown!"), *InModuleName)
+		FH_LOG(L_ModuleManager, Error, FH_TEXT("Module %s was unloaded at shutdown!"), *InModuleName)
 		return nullptr;
 	}
 
@@ -34,7 +34,7 @@ IModuleInterface* CModuleManager::LoadModule(const CString& InModuleName)
 		Interface->StartupModule();
 		ModuleInfo->bIsReady = true;
 
-		FH_LOG(LogModuleManager, Log, FH_TEXT("Loaded %s module"), *InModuleName)
+		FH_LOG(L_ModuleManager, Log, FH_TEXT("Loaded %s module"), *InModuleName)
 		
 		return Interface;
 	}
@@ -51,7 +51,7 @@ IModuleInterface* CModuleManager::GetModule(const CString& InModuleName)
 	TSharedPtr<CModuleInfo> ModuleInfo = FindModule(InModuleName);
 	if (!ModuleInfo || !ModuleInfo->bIsReady)
 	{
-		FH_LOG(LogModuleManager, Error, FH_TEXT("Module %s is not loaded!"), *InModuleName)
+		FH_LOG(L_ModuleManager, Error, FH_TEXT("Module %s is not loaded!"), *InModuleName)
 		return nullptr;
 	}
 	
@@ -98,7 +98,7 @@ void CModuleManager::UnloadModule(const CString& InModuleName)
 	TSharedPtr<CModuleInfo> ModuleInfo = FindModule(InModuleName);
 	if (!ModuleInfo || !ModuleInfo->bIsReady)
 	{
-		FH_LOG(LogModuleManager, Warning, FH_TEXT("UnloadModule() was called but module %s is already unloaded!"), *InModuleName)
+		FH_LOG(L_ModuleManager, Warning, FH_TEXT("UnloadModule() was called but module %s is already unloaded!"), *InModuleName)
 		return;
 	}
 
@@ -106,7 +106,7 @@ void CModuleManager::UnloadModule(const CString& InModuleName)
 	ModuleInfo->Interface->ShutdownModule();
 	ModuleInfo.PTR_Reset();
 
-	FH_LOG(LogModuleManager, Log, FH_TEXT("Unloaded %s module"), *InModuleName)
+	FH_LOG(L_ModuleManager, Log, FH_TEXT("Unloaded %s module"), *InModuleName)
 }
 
 bool CModuleManager::IsModuleLoaded(const CString& InModuleName) const
@@ -129,7 +129,7 @@ void CModuleManager::RegisterModule_Internal(const TCHAR* InModuleName, const UM
 	}
 	else
 	{
-		FH_LOG(LogModuleManager, Error, FH_TEXT("The module %s was not constructed properly!"), InModuleName)
+		FH_LOG(L_ModuleManager, Error, FH_TEXT("The module %s was not constructed properly!"), InModuleName)
 	}
 }
 

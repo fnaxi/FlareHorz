@@ -4,40 +4,61 @@ using System;
 
 namespace FlareCore;
 
-public class CAction
+/**
+ * An object that records time on its creation and subtracts it with time recorded when Stop() method was called.
+ * NOTE: There's already System.Timers.Timer class, but it uses UpperCamelCase without prefix so we can't declare a variable with name 'Timer'.
+ */
+public class CTimer
 {
-	private CAction()
+	public CTimer()
 	{
-		TimeStart = DateTime.Now;
-		TimeEnd = new DateTime();
-		FinalTime = TimeSpan.Zero;
+		StartTime = DateTime.Now;
 	}
-
-	public static void Run(bool bLogTime, Func<string> Lambda)
+	public void Stop()
 	{
-		CAction TimeAction = new CAction();
-		
-		string FinishMessage = Lambda();
-		TimeAction.Finish(FinishMessage, bLogTime);
+		EndTime = DateTime.Now;
+		FinalTime = EndTime - StartTime;
 	}
 
 	public override string ToString()
 	{
-		return Convert.ToString( Math.Round(FinalTime.TotalSeconds + FinalTime.Milliseconds / 1000.0, 2) );
+		return Convert.ToString( Math.Round(FinalTime.TotalSeconds + FinalTime.Milliseconds, 0) ) + "ms";
 	}
 	
-	private readonly DateTime TimeStart;
-	private DateTime TimeEnd;
+	private readonly DateTime StartTime;
+	private DateTime EndTime;
 	private TimeSpan FinalTime;
+}
+
+public class CAction
+{
+	private CAction()
+	{
+		Timer = new CTimer();
+	}
+
+	public static void Run(bool bLogTime, Func<string> Lambda)
+	{
+		CAction Action = new CAction();
+		
+		string FinishMessage = Lambda();
+		Action.Finish(FinishMessage, bLogTime);
+	}
+
+	public override string ToString()
+	{
+		return Timer.ToString();
+	}
+
+	private readonly CTimer Timer;
 	
 	private void Finish(string Message, bool bLogTime)
 	{
-		TimeEnd = DateTime.Now;
-		FinalTime = TimeEnd - TimeStart;
+		Timer.Stop();
 
 		if (IsTextValid(Message))
 		{
-			CLog.Info(bLogTime ? $"{Message} ({ToString()}s elapsed)" : Message);
+			CLog.Info(bLogTime ? $"{Message} ({ToString()} elapsed)" : Message);
 		}
 	}
 }
