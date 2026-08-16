@@ -1,0 +1,21 @@
+# CopyRight © FlareHorz Team. All Rights Reserved.
+
+
+Binaries/
+Intermediate/
+
+Saved/
+
+.vs/
+.vscode/
+.idea/
+
+*.sln
+*.sln.DotSettings
+*.sln.DotSettings.user
+
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+
+Source/Tools/**/obj/
