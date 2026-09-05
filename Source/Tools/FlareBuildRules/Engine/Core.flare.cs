@@ -6,14 +6,17 @@ public class Core : FlareModuleRules
 {
 	public Core()
 	{
-		exposed_dependencies.AddRange(
+		dependencies.exposed.AddRange(
 		[
 			// ...
 		]);
 		
-		hidden_dependencies.AddRange(
+		dependencies.hidden.AddRange(
 		[
 			// ...
 		]);
+		
+		// You can use the following prefix to specify that something is only for specific configurations
+		// exposed_include_dirs.Add("Debug+Development^^Exposed/SomeDirectory");
 	}
 }

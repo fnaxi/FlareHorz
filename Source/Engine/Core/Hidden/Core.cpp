@@ -1,7 +1,7 @@
 // CopyRight © FlareHorz Team. All Rights Reserved.
 
 
-#include "../Exposed/Core.h"
+#include "Core.h"
 
 #include <cstdio>
 

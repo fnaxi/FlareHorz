@@ -1,18 +1,20 @@
 // CopyRight © FlareHorz Team. All Rights Reserved.
 
+using FlareCore;
+
 namespace FlareBuildTool.Configuration;
+
+public class FlareRule
+{
+	public List<string> exposed = new();
+	public List<string> hidden = new();
+	public List<string> Get() => Utils.Concat(exposed, hidden);
+}
 
 public class FlareModuleRules
 {
-	public List<string> exposed_dependencies = new();
-	public List<string> hidden_dependencies = new();
-	
-	public List<string> exposed_include_dirs = new();
-	public List<string> hidden_include_dirs = new();
-
-	public List<string> exposed_lib_dirs = new();
-	public List<string> hidden_lib_dirs = new();
-	
-	public List<string> exposed_defines = new();
-	public List<string> hidden_defines = new();
+	public FlareRule dependencies = new();
+	public FlareRule include_dirs = new();
+	public FlareRule lib_dirs = new();
+	public FlareRule defines = new();
 }

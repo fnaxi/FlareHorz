@@ -67,7 +67,7 @@ public class FlareModule : FlareItem
 	
 	/** The rules for this module. */
 	public readonly FlareModuleRules rules;
-	// todo: public readonly FlareModuleRules act_rules;
+	//@TODO: public readonly FlareModuleRules act_rules;
 	
 	/** The name of the .flare.cs file this item was created from. */
 	private IAbsoluteFilePath rules_file { init; get; }
@@ -75,6 +75,8 @@ public class FlareModule : FlareItem
 	public override Guid GetMsType() => Guid.Parse("8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942");
 	public override string GetDisplayName() => "module";
 
+	public static int cpp_standard = 17;
+	
 	private static T GatherRules<T>(string type_name)
 	{
 		IAbsoluteFilePath dll_path = Global.engine.binaries_path.GetChildFileWithName($"{Global.rules_project_name}.dll");
@@ -94,14 +96,16 @@ public class FlareModule : FlareItem
 
 	private void DefaultSetupRules()
 	{
-		rules.hidden_defines.Add($"{name.ToUpper()}_EXPORTS");
-		rules.hidden_defines.Add("_WINDOWS");
-		rules.hidden_defines.Add("_USRDLL");
+		rules.defines.hidden.Add($"{name.ToUpper()}_EXPORTS");
+		rules.defines.hidden.Add("_WINDOWS");
+		rules.defines.hidden.Add("_USRDLL");
+		
+		rules.include_dirs.exposed.Add("Exposed");
 	}
 	
 	private void SetupRules()
 	{
-		// todo
+		//@TODO
 	}
 	
 	private List<IRelativeFilePath> FindFiles(string extension, string file_label)

@@ -13,19 +13,19 @@ public class ProjectFileGenerator
 	public void Create(IAbsoluteDirectoryPath path, FlareModule mod)
 	{
 		string file_name = $"{mod.name}.vcxproj";
-		string file_path = path.GetChildFileWithName(file_name).Get();
+		IAbsoluteFilePath file_path = path.GetChildFileWithName(file_name);
 
 		XDocument vcxproj = new XDocument(new XDeclaration("1.0", "utf-8", "yes"), GenerateVcxprojFile(mod));
 		{
-			vcxproj.Save(file_path);
+			vcxproj.Save(file_path.Get());
 		}
 
-		Logger.Get().LogInformation($"Created {file_path} project file");
+		Logger.Get().LogInformation($"Created {file_path.GetRelativePathFrom(Global.engine.root_path)} project file");
 	}
 
 	private static XElement GenerateVcxprojFile(FlareModule mod)
 	{
-		// XNamespace ns = "http://schemas.microsoft.com/developer/msbuild/2003";
+		XNamespace ns = "http://schemas.microsoft.com/developer/msbuild/2003";
 		
 		XElement root_element = new XElement(
 			"Project",
@@ -48,6 +48,11 @@ public class ProjectFileGenerator
 		}
 		
 		root_element.Add(new XElement(
+			"PropertyGroup",
+			new XElement("OutDir", "$(SolutionDir)Binaries\\"),
+			new XElement("IntDir", "$(SolutionDir)Intermediate\\")));
+		
+		root_element.Add(new XElement(
 			"PropertyGroup", 
 			new XAttribute("Label", "Globals"),
 			new XElement("VCProjectVersion", "15.0"),
@@ -61,34 +66,10 @@ public class ProjectFileGenerator
 			new XAttribute("Project", "$(VCTargetsPath)\\Microsoft.Cpp.Default.props")));
 		
 		root_element.Add(new XElement(
-			"Import",
-			new XAttribute("Project", "$(VCTargetsPath)\\Microsoft.Cpp.props")));
-		
-		root_element.Add(new XElement(
-			"Import",
-			new XAttribute("Project", "$(VCTargetsPath)\\Microsoft.Cpp.targets")));
-		
-		root_element.Add(new XElement(
-			"ImportGroup",
-			new XAttribute("Label", "ExtensionSettings")));
-		
-		root_element.Add(new XElement(
-			"ImportGroup",
-			new XAttribute("Label", "ExtensionTargets")));
-		
-		root_element.Add(new XElement(
-			"ImportGroup",
-			new XAttribute("Label", "Shared")));
-		
-		root_element.Add(new XElement(
-			"PropertyGroup",
-			new XAttribute("Label", "UserMacros")));
-		
-		root_element.Add(new XElement(
 			"PropertyGroup",
 			new XElement("PreferredToolArchitecture", "x64")));
 
-		// todo: Revisit this
+		//@TODO: Revisit this
 		foreach (string conf in FlareBuildTool.configurations)
 		{
 			foreach (string platform in FlareBuildTool.platforms)
@@ -96,6 +77,19 @@ public class ProjectFileGenerator
 				root_element.Add(CreateConfigPropertyGroup(conf, platform, "DynamicLibrary"));
 			}
 		}
+		
+		root_element.Add(new XElement(
+			"Import",
+			new XAttribute("Project", "$(VCTargetsPath)\\Microsoft.Cpp.props")));
+		
+		root_element.Add(new XElement(
+			"ImportGroup",
+			new XAttribute("Label", "ExtensionSettings")));
+		
+		root_element.Add(new XElement(
+			"ImportGroup",
+			new XAttribute("Label", "Shared")));
+		
 		foreach (string conf in FlareBuildTool.configurations)
 		{
 			foreach (string platform in FlareBuildTool.platforms)
@@ -103,6 +97,11 @@ public class ProjectFileGenerator
 				root_element.Add( CreatePropertySheet(conf, platform) );
 			}
 		}
+		
+		root_element.Add(new XElement(
+			"PropertyGroup",
+			new XAttribute("Label", "UserMacros")));
+		
 		foreach (string conf in FlareBuildTool.configurations)
 		{
 			foreach (string platform in FlareBuildTool.platforms)
@@ -117,7 +116,7 @@ public class ProjectFileGenerator
 		{
 			foreach (string platform in FlareBuildTool.platforms)
 			{
-				root_element.Add(CreateItemDefinitionGroup(conf, platform, mod.name, mod.rules.hidden_defines));
+				root_element.Add(CreateItemDefinitionGroup(conf, platform, mod));
 			}
 		}
 
@@ -141,6 +140,14 @@ public class ProjectFileGenerator
 			root_element.Add(cl_include);
 		}
 		
+		root_element.Add(new XElement(
+			"Import",
+			new XAttribute("Project", "$(VCTargetsPath)\\Microsoft.Cpp.targets")));
+
+		root_element.Add(new XElement(
+			"ImportGroup",
+			new XAttribute("Label", "ExtensionTargets")));
+		
 		return root_element;
 	}
 
@@ -162,7 +169,7 @@ public class ProjectFileGenerator
 			new XAttribute("Label", "Configuration"),
 			new XElement("ConfigurationType", type),
 			new XElement("UseDebugLibraries", IsDebugStr(conf)),
-			new XElement("PlatformToolset", "v143"),
+			new XElement("PlatformToolset", "$(DefaultPlatformToolset)"),
 			new XElement("CharacterSet", "Unicode")
 		);
 
@@ -174,12 +181,12 @@ public class ProjectFileGenerator
 		return group;
 	}
 	
-	private static XElement CreatePropertySheet(string config, string platform)
+	private static XElement CreatePropertySheet(string conf, string platform)
 	{
 		return new XElement(
 			"ImportGroup",
 			new XAttribute("Label", "PropertySheets"),
-			new XAttribute("Condition", $"'$(Configuration)|$(Platform)'=='{config}|{platform}'"),
+			new XAttribute("Condition", $"'$(Configuration)|$(Platform)'=='{conf}|{platform}'"),
 			new XElement(
 				"Import",
 				new XAttribute("Project", "$(UserRootDir)\\Microsoft.Cpp.$(Platform).user.props"),
@@ -189,10 +196,8 @@ public class ProjectFileGenerator
 		);
 	}
 
-	private static XElement CreateItemDefinitionGroup(string conf, string platform, string project_name, List<string> defines)
+	private static XElement CreateItemDefinitionGroup(string conf, string platform, FlareModule mod)
 	{
-		defines.Add($"FH_{conf.ToUpper()}");
-		
 		return new XElement(
 			"ItemDefinitionGroup",
 			new XAttribute("Condition", $"'$(Configuration)|$(Platform)'=='{conf}|{platform}'"),
@@ -202,22 +207,24 @@ public class ProjectFileGenerator
 				new XElement("WarningLevel", "Level3"),
 				new XElement("Optimization", IsDebug(conf) ? "Disabled" : "MaxSpeed"),
 				new XElement("SDLCheck", "true"),
-				new XElement("PreprocessorDefinitions", $"{CreatePreprocessorDefinesText(defines)}%(PreprocessorDefinitions)"),
+				new XElement("PreprocessorDefinitions", $"FH_{conf.ToUpper()};{CreateSeperatedText(mod.rules.defines.Get())}%(PreprocessorDefinitions)"),
 				new XElement("ConformanceMode", "true"),
-				new XElement("PrecompiledHeaderFile", "pch.h")
+				new XElement("PrecompiledHeaderFile", "pch.h"),
+				new XElement("LanguageStandard", $"stdcpp{FlareModule.cpp_standard}"),
+				new XElement("AdditionalIncludeDirectories", CreateSeperatedText(mod.rules.include_dirs.Get().Select(x => "$(ProjectDir)" + x).ToList()))
 			),
 			new XElement(
 				"Link",
 				new XElement("SubSystem", "Windows"),
-				new XElement("GenerateDebugInformation", IsDebugStr(conf))
+				new XElement("GenerateDebugInformation", IsDebugStr(conf)),
+				new XElement("AdditionalLibraryDirectories", CreateSeperatedText(mod.rules.lib_dirs.Get())),
+				new XElement("AdditionalDependencies", CreateSeperatedText(mod.rules.dependencies.Get()))
 			)
 		);
 	}
 
-	private static string CreatePreprocessorDefinesText(List<string> defines)
-	{
-		return defines.Aggregate(String.Empty, (x, define) => x + $"{define};");
-	}
+	private static string CreateSeperatedText(List<string> items)
+		=> items.Aggregate(String.Empty, (x, item) => x + $"{item};");
 
 	private static bool IsDebug(string conf)
 		=> conf is "Debug" or "DebugGame";

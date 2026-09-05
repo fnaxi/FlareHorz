@@ -38,7 +38,7 @@ public class SolutionFileGenerator
 		{
 			await SolutionSerializers.SlnFileV12.SaveAsync(sln_path.Get(), solution, CancellationToken.None);
 
-			Logger.Get().LogInformation($"Created {sln_path} solution file");
+			Logger.Get().LogInformation($"Created {sln_path.GetRelativePathFrom(Global.engine.root_path)} solution file");
 		}
 	}
 

@@ -6,12 +6,12 @@ public class Launch : FlareModuleRules
 {
 	public Launch()
 	{
-		exposed_dependencies.AddRange(
+		dependencies.exposed.AddRange(
 		[
 			"Core"
 		]);
 		
-		hidden_dependencies.AddRange(
+		dependencies.hidden.AddRange(
 		[
 			// ...
 		]);

@@ -13,7 +13,7 @@ public static class Global
 	
 	public static readonly ProjectPaths engine = new(GetSolutionPath());
 	
-	// todo: Game paths
+	//@TODO: Game paths
 	// public static readonly ProjectPaths game = new();
 	
 	public class ProjectPaths
@@ -25,7 +25,7 @@ public static class Global
 			Debug.Assert(root_path.Exists);
 			Debug.Assert(root_path.Get().EndsWith(solution_name), "Failed to get root path!");
 			
-			// Todo: Revisit this
+			//@TODO: Revisit this
 			// Directory.SetCurrentDirectory(root_path.Get());
 			
 			binaries_path		= root_path.GetChildDirectoryWithName("Binaries");
@@ -58,7 +58,7 @@ public static class Global
 	{
 		string current_directory = Directory.GetCurrentDirectory();
 
-		if (!current_directory.EndsWith(solution_name)) // todo: Revisit this
+		if (!current_directory.EndsWith(solution_name)) //@TODO: Revisit this
 		{
 			current_directory = PathUtils.GetParent(current_directory);
 		}

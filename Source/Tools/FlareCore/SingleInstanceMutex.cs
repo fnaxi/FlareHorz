@@ -64,7 +64,7 @@ public class SingleInstanceMutex : IDisposable
 	 */
 	public static string GetUniqueMutexForPath(string name, string unique_path)
 	{
-		// todo: Use stable hash here
+		//@TODO: Use stable hash here
 		return $"Global\\{name}_{PathUtils.RemoveStyling(unique_path.ToUpperInvariant())}";
 	}
 	

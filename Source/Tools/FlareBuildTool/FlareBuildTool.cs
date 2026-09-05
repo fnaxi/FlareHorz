@@ -85,7 +85,7 @@ internal class FlareBuildTool : Application
 	public static List<FlareItem> items = [];
 	
 	public static readonly List<string> platforms = ["x64"];
-	public static readonly List<string> configurations = ["Debug", "Release"];
+	public static readonly List<string> configurations = ["Debug", "Development"];
 	public static readonly List<string> solution_files = [".gitignore", "README.md"];
 	
 	public static List<FlareModule> GetModules() => items.OfType<FlareModule>().ToList();
@@ -116,8 +116,8 @@ internal class FlareBuildTool : Application
 	/** The tool mode to execute. */
 	[CommandLine("-Mode?", description = "Select tool mode. One of the following (default tool mode is \"Build\"): GenerateProjectFiles, Build.")]
 	[CommandLine("-ProjectFiles", value = "GenerateProjectFiles", description = "Generate Visual Studio project files. Equivalent to -Mode?GenerateProjectFiles.")]
-	// todo: [CommandLine("-Build", value = "Build")]
-	// todo: [CommandLine("-Clean", value = "Clean", Description = "Clean build products. Equivalent to -Mode=Clean")]
+	//@TODO: [CommandLine("-Build", value = "Build")]
+	//@TODO: [CommandLine("-Clean", value = "Clean", Description = "Clean build products. Equivalent to -Mode=Clean")]
 	private static string? mode_name = null;
 	
 	/** Whether to ignore the mutex. */
